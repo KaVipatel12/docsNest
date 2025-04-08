@@ -15,7 +15,7 @@ function Login(){
     const navigate = useNavigate();
 
       useEffect(() => {
-        document.title = `DocuNest : Login`;
+        document.title = `DocsNest : Login`;
       }, []);
 
     const handelSubmit = async ()=>{

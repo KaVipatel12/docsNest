@@ -28,7 +28,7 @@ function FolderMainPage() {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    document.title = `DocuNest : Folder`;
+    document.title = `DocsNest : Folder`;
   }, []);
 
   // Handle loading & user state

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 function Logout() {
   const navigate = useNavigate();
   useEffect(() => {
-    document.title = `DocuNest : Logout`;
+    document.title = `DocsNest : Logout`;
   }, []);
 
   useEffect(() => {

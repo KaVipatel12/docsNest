@@ -34,7 +34,7 @@ function Modal({button = true, heading , description, buttonFunction, clickButto
             );
           toast.success(response.data.msg)
           userInfo(); // Refetch user info
-          navigate(`/folder/${title}`); 
+          navigate(`/folder/${title.split(" ").join("_")}`); 
         } catch(error) {
           console.log(error)
           if (error.response) {

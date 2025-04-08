@@ -19,7 +19,7 @@ function Home() {
   const [user, setUser] = useState("");
 
     useEffect(() => {
-      document.title = `DocuNest : Home`;
+      document.title = `DocsNest : Home`;
     }, []);
 
   useEffect(() => {
@@ -61,11 +61,11 @@ function Home() {
   }, [fetchFolder]);
   
   const filteredNotes = allNotes.filter((note) =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase())
+    note?.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredFolders = folder?.filter((folderName) =>
-    folderName.toLowerCase().includes(searchQuery.toLowerCase())
+    folderName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   useEffect(() => {

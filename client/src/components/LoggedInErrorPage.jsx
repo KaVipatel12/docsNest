@@ -11,7 +11,7 @@ function LoggedInErrorPage() {
       <div className="not-logged-in-container">
         <div className="not-logged-in-box">
           <h1>🔒 Access Denied</h1>
-          <p>You are not logged in. Please login or register to continue.</p>
+          <p>Either You are not logged in or Network Error. Please login register or check the internet to continue.</p>
           <div className="button-group">
             <button className="btn login-btn" onClick={() => navigate("/login")}>
               Login

@@ -16,7 +16,7 @@ function Register() {
   const navigate = useNavigate()
 
     useEffect(() => {
-      document.title = `DocuNest : Register`;
+      document.title = `DocsNest : Register`;
     }, []);
 
   const handelSubmit = async () => {

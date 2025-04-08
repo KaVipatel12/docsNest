@@ -27,7 +27,7 @@ function FileMainPage() {
 ;
 
 useEffect(() => {
-  document.title = `DocuNest : File`;
+  document.title = `DocsNest : File`;
 }, []);
 
   useEffect(() => {
@@ -73,7 +73,38 @@ useEffect(() => {
     }
   }, [fetchFiles, folder, fileName]);
 
-  const handleSubmit = async () => {
+  const handleFileSubmit = async () => {
+    if (!title || !description) {
+      toast.warning("Please fill in both title and note.");
+      return;
+    }
+    if (title?.length >= 20) {
+      toast.warning("Title should be less than 20 characters.");
+      return;
+    }
+    setBtnLoading(prev => ({ ...prev, save: true }));
+
+    try {
+      const response = await axios.post(
+        `${APP_URI}/user/file/createfile`,
+        { content: description, fileName: title, folderName: folder },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success(response.data.msg);
+      userInfo();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error saving note. Please try again.");
+    }
+    setBtnLoading(prev => ({ ...prev, save: false }));
+  };
+
+  const handleNoteSubmit = async () => {
     if (!title || !description) {
       toast.warning("Please fill in both title and note.");
       return;
@@ -85,8 +116,8 @@ useEffect(() => {
     setBtnLoading(prev => ({ ...prev, save: true }));
     try {
       const response = await axios.post(
-        `${APP_URI}/user/file/createfile`,
-        { content: description, fileName: title, folderName: folder },
+        `${APP_URI}/user/addnote` ,
+        { description , title },
         {
           headers: {
             "Content-Type": "application/json",
@@ -262,7 +293,7 @@ useEffect(() => {
           cols="30"
         />
         <div>
-          {fileName !== "0" ? (
+          {(fileName !== "0" && fileName) ? (
             btnLoading.update ? (
               <LoadingButton classButton="btn btn-success mx-3" />
             ) : (
@@ -278,7 +309,7 @@ useEffect(() => {
               <LoadingButton classButton="btn btn-success mx-3" />
             ) : (
               <button
-                onClick={handleSubmit}
+                onClick={(!folderName) ? handleNoteSubmit : handleFileSubmit}
                 className="btn btn-success mx-3"
               >
                 Save
