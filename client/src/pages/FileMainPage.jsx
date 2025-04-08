@@ -270,7 +270,7 @@ useEffect(() => {
     );
   } 
   
-  if (!user || !userLoading) {
+  if (!user && !userLoading) {
     return <LoggedInErrorPage />;
   }
 

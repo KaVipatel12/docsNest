@@ -83,7 +83,7 @@ function Home() {
     );
   }
 
-  if (!user || !userLoading) {
+  if (!user && !userLoading) {
     return <LoggedInErrorPage />;
   }
 
