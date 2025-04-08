@@ -292,10 +292,10 @@ useEffect(() => {
           rows="10"
           cols="30"
         />
-        <div>
+        <div className="file-buttons">
           {(fileName !== "0" && fileName) ? (
             btnLoading.update ? (
-              <LoadingButton classButton="btn btn-success mx-3" />
+              <LoadingButton classButton="btn btn-success m-3" />
             ) : (
               <button
                 onClick={folder ? handleUpdateFile : handleUpdateNote}
@@ -306,7 +306,7 @@ useEffect(() => {
             )
           ) : (
             btnLoading.save ? (
-              <LoadingButton classButton="btn btn-success mx-3" />
+              <LoadingButton classButton="btn btn-success m-3" />
             ) : (
               <button
                 onClick={(!folderName) ? handleNoteSubmit : handleFileSubmit}
@@ -319,7 +319,7 @@ useEffect(() => {
 
           {fileName !== "0" && noteId && (
             btnLoading.delete ? (
-              <LoadingButton classButton="btn btn-danger mx-3" />
+              <LoadingButton classButton="btn btn-danger m-3" />
             ) : (
               <Modal
                 button={true}
@@ -332,8 +332,8 @@ useEffect(() => {
               />
             )
           )}
-        <button className="btn btn-primary mx-3" onClick={clearText}>clear</button>
-        <button className="btn btn-primary mx-3" onClick={clearWhiteSpace}>clear space</button>
+        <button className="btn btn-primary m-3" onClick={clearText}>clear</button>
+        <button className="btn btn-primary m-3" onClick={clearWhiteSpace}>clear space</button>
         </div>
       </div>
     </>
