@@ -9,7 +9,7 @@ const createFolder = async (req, res, next) => {
   const userId = req.user._id.toString();
   const basePath = path.join(__dirname, "..", "userNotes", userId);
   const createFolder = path.join(basePath, folderName);
-
+  
   try {
     // Check if folder exists
     try {

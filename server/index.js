@@ -13,7 +13,7 @@ const userFileRouter = require("./routes/userFileRouter");
 const errorMiddleware = require("./middlewares/errorMiddleWare");
 
 app.use(cors({
-    origin : ['http://localhost:3000'], 
+    origin : [process.env.REACT_APP_URL], 
     methods : ['GET' , 'POST' , 'PUT' , 'PATCH' , 'DELETE'], 
     credentials : true
 })); 
