@@ -24,6 +24,16 @@ body {
   gap : 5px
 
 }
+
+@media (width < 770px) {
+  .file-buttons{
+    display: flex; 
+    justify-content: space-evenly;
+    align-items: center;
+    gap : 20px
+  
+  }
+}
 .icon {
   font-size: 32px;
   background-color: white;
