@@ -12,6 +12,7 @@ const authRouter = require("./routes/authRouter");
 const userRouter = require("./routes/userRouter"); 
 const userFileRouter = require("./routes/userFileRouter"); 
 const errorMiddleware = require("./middlewares/errorMiddleWare");
+const fileSharingRouter = require("./routes/fileSharingRouter")
 
 app.use(helmet());
 app.use(cors({
@@ -23,6 +24,7 @@ app.use(cors({
 app.use("/api/auth", authRouter)
 app.use("/api/user", userRouter)
 app.use("/api/user/file", userFileRouter)
+app.use("/api/filesharing", fileSharingRouter)
 
 app.use(errorMiddleware)
 
