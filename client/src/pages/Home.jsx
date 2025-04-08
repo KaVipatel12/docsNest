@@ -83,7 +83,7 @@ function Home() {
     );
   }
 
-  if (!user || Object.keys(user).length === 0) {
+  if (!user || !userLoading) {
     return <LoggedInErrorPage />;
   }
 

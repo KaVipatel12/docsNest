@@ -268,9 +268,9 @@ useEffect(() => {
         <LoadingSpinner />
       </>
     );
-  }
-
-  if (!user) {
+  } 
+  
+  if (!user || !userLoading) {
     return <LoggedInErrorPage />;
   }
 

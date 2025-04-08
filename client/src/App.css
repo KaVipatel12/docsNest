@@ -21,17 +21,15 @@ body {
   display: flex; 
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
   gap : 5px
 
 }
 
 @media (width < 770px) {
   .file-buttons{
-    display: flex; 
     justify-content: space-evenly;
-    align-items: center;
     gap : 20px
-  
   }
 }
 .icon {
