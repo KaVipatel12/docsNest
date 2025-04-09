@@ -9,5 +9,5 @@ router.route("/updatenote/:noteId").patch(authUser, userController.updateNote)
 router.route("/deletenote/:noteId").delete(authUser, userController.deleteNote)
 router.route("/bookmark/:noteId").patch(authUser, userController.bookMark)
 router.route("/fetchuserdata").get(authUser, userController.fetchUserData)
-
+router.route("/fetchallusers").post(userController.fetchAllUsers)
 module.exports = router; 

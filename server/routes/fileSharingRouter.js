@@ -7,8 +7,7 @@ const fileSharingController = require("../controllers/fileSharingController")
 // const storage = multer.memoryStorage();
 // const upload = multer({ storage: storage });
 
-router.route("/sharefile").post(authUser, fileSharingController.sendFileToUser)     
+router.route("/sharefileandfolder").post(authUser, fileSharingController.shareFilesAndFolders)     
 router.route("/receivefile").get(authUser, fileSharingController.receiverFile)     
-router.route("/sharefolder").post(authUser, fileSharingController.sendFolderToUser)     
 router.route("/receivefolder").get(authUser, fileSharingController.receiveFolder)     
 module.exports = router;

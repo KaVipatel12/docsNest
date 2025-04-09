@@ -73,6 +73,11 @@ function Nav({searchQuery}) {
                     </>
                 )
             )}
+                    <li className="nav-item">
+                    <Link className="nav-link" to="/filesharing">
+                    File Sharing
+                    </Link>
+                    </li>
           </ul>
           <form className="d-flex" role="search">
             <input

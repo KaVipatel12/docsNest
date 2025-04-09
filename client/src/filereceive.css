@@ -1,0 +1,84 @@
+.file-receive-container {
+    padding: 24px;
+    max-width: 1024px;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: rgba(126, 34, 206, 0.4);
+  }
+
+  .file-receive-heading {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: white;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(233, 213, 255, 0.7);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    transition: background-color 0.2s ease;
+  }
+
+  .file-item:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .file-icon-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .file-details {
+    color: white;
+  }
+
+  .file-name {
+    font-weight: 700;
+    font-size: 18px;
+    color: white;
+  }
+
+  .file-info {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .highlight {
+    color: #fff9c5;
+  }
+
+  .accept-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background-color: #581c87;
+    color: white;
+    font-weight: 700;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .accept-button:hover {
+    background-color: #6b21a8;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 0;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+  }

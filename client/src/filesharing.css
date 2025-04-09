@@ -1,0 +1,268 @@
+/* Add these additional styles to your fileSharing.css file */
+
+/* User Card Clickable Styles */
+.user-card {
+    margin-bottom: 0.5rem;
+    padding: 0.75rem;
+    background-color: rgba(126, 34, 206, 0.4);
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .user-card:hover {
+    background-color: rgba(126, 34, 206, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-card:active {
+    transform: translateY(0);
+  }
+  
+  .user-card-selected {
+    background-color: rgba(168, 85, 247, 0.8);
+    border-left: 4px solid #e9d5ff;
+  }
+  
+  .user-card-selected:hover {
+    background-color: rgba(168, 85, 247, 0.9);
+  }
+  
+  /* Selected Users Section */
+  .selected-users-container {
+    background-color: rgba(126, 34, 206, 0.3);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .selected-users-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: rgba(126, 34, 206, 0.2);
+    min-height: 3rem;
+  }
+  
+  .selected-user-card {
+    display: flex;
+    align-items: center;
+    background-color: rgba(126, 34, 206, 0.6);
+    padding: 0.5rem 0.75rem;
+    border-radius: 2rem;
+    transition: all 0.2s ease;
+  }
+  
+  .selected-user-card:hover {
+    background-color: rgba(126, 34, 206, 0.8);
+  }
+  
+  .selected-user-card .user-name {
+    margin: 0;
+    margin-right: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .remove-user-button {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    transition: all 0.2s ease;
+  }
+  
+  .remove-user-button:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+  }
+  
+  .no-selected-users {
+    color: #e9d5ff;
+    text-align: center;
+    width: 100%;
+    padding: 0.75rem 0;
+  }
+  /* Add these styles to your existing fileSharing.css file */
+  
+  /* FileShare Component Styles */
+  .file-share-container {
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+  
+  .file-share-title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: white;
+  }
+  
+  .search-section {
+    margin-bottom: 2rem;
+  }
+  
+  .search-container {
+    background-color: rgba(126, 34, 206, 0.2);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-heading {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: white;
+  }
+  
+  .search-input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .search-input {
+    width: 100%;
+    max-width: 28rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    color: #6b21a8;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #9333ea;
+  }
+  
+  .loading-indicator {
+    text-align: center;
+    padding: 0.75rem 0;
+  }
+  
+  .loading-text {
+    animation: pulse 1.5s infinite;
+    font-size: 1.25rem;
+    color: white;
+  }
+  
+  .error-message {
+    text-align: center;
+    padding: 0.75rem 0;
+    color: #fca5a5;
+  }
+  
+  .results-container {
+    margin-top: 1rem;
+  }
+  
+  .results-heading {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: white;
+  }
+  
+  .results-list {
+    background-color: rgba(126, 34, 206, 0.5);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    max-height: 16rem;
+    overflow-y: auto;
+  }
+  
+  .user-card {
+    margin-bottom: 0.5rem;
+    padding: 0.75rem;
+    background-color: rgba(126, 34, 206, 0.4);
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .user-card:hover {
+    background-color: rgba(126, 34, 206, 0.7);
+  }
+  
+  .user-name {
+    font-weight: bold;
+    color: white;
+  }
+  
+  .user-username {
+    font-size: 0.875rem;
+    color: #e9d5ff;
+  }
+  
+  .user-email {
+    font-size: 0.875rem;
+    color: white;
+  }
+  
+  .no-results {
+    text-align: center;
+    padding: 0.75rem 0;
+    color: white;
+  }
+  
+  .custom-components-container {
+    background-color: rgba(126, 34, 206, 0.3);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+  
+  .components-heading {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: white;
+  }
+  
+  .components-placeholder {
+    border: 2px dashed #c4b5fd;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    min-height: 8rem;
+  }
+  
+  .placeholder-text {
+    color: #e9d5ff;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .button-box{
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .button-box .btn{
+    background-color: rgba(245, 238, 250, 0.5);
+  }

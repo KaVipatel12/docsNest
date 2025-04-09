@@ -135,10 +135,23 @@ const fetchUserData = async (req, res, next) => {
   }
 };
 
+const fetchAllUsers = async (req , res , next) => {
+  try{
+    const {queryEmail} = req.body; 
+    
+    const fetchUsers = await User.find({email : {$regex : new RegExp(queryEmail , "i")}}, "email username");
+    console.log(fetchUsers)
+    res.status(200).send({msg : fetchUsers})
+  }catch(err){
+    console.log(err)
+    res.status(500).send({msg : "There is some error in the server"})
+  }
+}
 module.exports = {
   addNote,
   updateNote,
   deleteNote,
   bookMark,
-  fetchUserData
+  fetchUserData, 
+  fetchAllUsers
 };
