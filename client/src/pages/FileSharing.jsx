@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FileShare from '../components/FileShare';
 import FileReceive from '../components/FileReceive';
+import { toast } from 'react-toastify';
 // Import the external CSS file (assuming it's saved as fileSharing.css in the styles folder)
 
 // The main App component
@@ -13,6 +14,9 @@ export default function FileSharing() {
     setCurrentPage(page);
   };
 
+  useEffect(() => {
+    toast.warning("The page is still under construction, You can use limited features only.")
+  }, [])
   return (
     <div className="file-sharing-container">
       <header className="file-sharing-header">
