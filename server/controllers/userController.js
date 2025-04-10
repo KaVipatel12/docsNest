@@ -1,12 +1,13 @@
 const User = require("../models/user-model");
 const Note = require("../models/note-model");
-const fs = require("fs");
-const path = require('path')
+const fileSharing = require("../models/file_sharing-model");
+
 const addNote = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const { title, description } = req.body;
+    const { title, description, shareId } = req.body;
 
+    // Create a new note
     const createNewNote = new Note({
       user: userId,
       title,
@@ -25,7 +26,20 @@ const addNote = async (req, res, next) => {
     if (!createdNote) {
       return res.status(402).send({ msg: "Couldn't add the note" });
     }
+
+    // If the note is being added via file sharing
+    if (shareId) {
+      await fileSharing.updateOne(
+        { _id: shareId, "sharedWith.userId": userId },
+        { $set: { "sharedWith.$.status": "0" } } // mark as accepted
+      );
+
+      return res.status(200).send({ msg: "File added successfully" });
+    }
+
+    // Regular note creation
     res.status(200).send({ msg: "Note added successfully" });
+
   } catch (err) {
     err.status = 500;
     next(err);

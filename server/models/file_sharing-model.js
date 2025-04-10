@@ -8,8 +8,11 @@ const fileSharingSchema = mongoose.Schema({
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
      
     status : { type: String }, // 0 -> Accepted , 1-> rejected 
-    sharedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // optional
-});
+    sharedWith: [{
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        status: { type: String, enum: ['0', '1', '2'], default: '1' } // 0 = accepted, 1 = pending, 2 => rejected
+      }]
+    }); 
 
 const fileSharing = new mongoose.model("fileSharing", fileSharingSchema);
 

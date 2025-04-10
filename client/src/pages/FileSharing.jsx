@@ -1,23 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import FileShare from '../components/FileShare';
 import FileReceive from '../components/FileReceive';
-import { toast } from 'react-toastify';
-// Import the external CSS file (assuming it's saved as fileSharing.css in the styles folder)
+import History from '../components/History';
+import Nav from '../components/Nav';
+import { Auth } from '../context/Auth';
+import LoadingSpinner from '../components/LoadingSpinner';
+import LoggedInErrorPage from '../components/LoggedInErrorPage';
 
 // The main App component
 export default function FileSharing() {
   // State to track which page is currently active
   const [currentPage, setCurrentPage] = useState('fileshare');
-
+  const {userData , userLoading} = useContext(Auth)
   // Function to handle navigation
   const navigateTo = (page) => {
     setCurrentPage(page);
   };
 
-  useEffect(() => {
-    toast.warning("The page is still under construction, You can use limited features only.")
-  }, [])
+  if(userLoading){
+    return (
+    <>
+    <Nav></Nav>
+    <LoadingSpinner></LoadingSpinner>
+    </>
+    )
+  }
+  if(!userData && !userLoading){
+    return (
+    <>
+    <Nav></Nav>
+    <LoggedInErrorPage></LoggedInErrorPage>
+    </>
+    )
+  }
   return (
+    <>
+    <Nav></Nav>
     <div className="file-sharing-container">
       <header className="file-sharing-header">
         <nav className="file-sharing-nav">
@@ -33,6 +51,12 @@ export default function FileSharing() {
           >
             Receive Files 
           </button>
+          <button 
+            className={`nav-button ${currentPage === 'history' ? 'nav-button-active' : 'nav-button-inactive'}`}
+            onClick={() => navigateTo('history')}
+          >
+            History
+          </button>
         </nav>
       </header>
 
@@ -40,10 +64,13 @@ export default function FileSharing() {
       <main className="file-sharing-main">
         {currentPage === 'fileshare' ? (
           <FileShare />
-        ) : (
+        ) : currentPage === 'receivefile' ? (
           <FileReceive />
+        ) : (
+          <History/>
         )}
       </main>
     </div>
+    </>
   );
 }

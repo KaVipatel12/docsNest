@@ -16,7 +16,7 @@ const fileSharingRouter = require("./routes/fileSharingRouter")
 
 app.use(helmet());
 app.use(cors({
-    origin : ["http://localhost:3000"], 
+    origin : process.env.CLIENT_APP_URL, 
     methods : ['GET' , 'POST' , 'PUT' , 'PATCH' , 'DELETE'], 
     credentials : true
 })); 

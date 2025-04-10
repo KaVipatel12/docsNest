@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { File, Folder, Check } from 'lucide-react';
 import "../filereceive.css";
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 function FileReceive() {
   const [receivedFiles, setReceivedFiles] = useState([]);
@@ -63,34 +64,91 @@ function FileReceive() {
     });
   };
 
-  const handleAcceptFile = async (fileId) => {
+  const handleAcceptFile = async (shareId , title , description) => {
+
     try {
-      await axios.post(`${APP_URI}/user/filesharing/acceptfile/${fileId}`, {}, {
+     const response = await axios.post(`${APP_URI}/user/addnote`, {
+        shareId , title, description
+      }, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-      // Refresh files after accepting
+      toast.success(response.data.msg)
       fetchFiles();
     } catch (error) {
-      console.error("Error accepting file:", error);
-    }
+            toast.error("Something went wrong. Please try again.");
   };
+}
 
-  const handleAcceptFolder = async (folderId) => {
+  const handleAcceptFolder = async (folderName , senderId) => {
     try {
-      await axios.post(`${APP_URI}/user/filesharing/acceptfolder/${folderId}`, {}, {
+      const response = await axios.post(`${APP_URI}/filesharing/acceptfolder`, {
+        folderName , senderId
+      }, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-      // Refresh folders after accepting
+      toast.success(response.data.msg)
       fetchFolders();
-    } catch (error) {
-      console.error("Error accepting folder:", error);
-    }
+    }  catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.msg); 
+      } else if (error.request) {
+        toast.error("No response from the server. Please try again.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+};
+  };
+
+  const handleRejectFolder = async (folderId) => {
+    try {
+      const response = await axios.post(`${APP_URI}/filesharing/rejectfolder`, {
+        folderId
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success(response.data.msg)
+      fetchFolders();
+    }  catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.msg); 
+      } else if (error.request) {
+        toast.error("No response from the server. Please try again.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+};
+  };
+
+  const handleRejectFile = async (fileId) => {
+    try {
+      const response = await axios.post(`${APP_URI}/filesharing/rejectfile`, {
+        fileId
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success(response.data.msg)
+      fetchFolders();
+    }  catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.msg); 
+      } else if (error.request) {
+        toast.error("No response from the server. Please try again.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+};
   };
 
   useEffect(() => {
@@ -127,11 +185,18 @@ function FileReceive() {
               </div>
               
               <button 
-                onClick={() => handleAcceptFile(file._id)}
+                onClick={() => handleAcceptFile(file._id , file.fileName, file.content )}
                 className="accept-button"
               >
                 <Check size={16} />
                 <span>Accept</span>
+              </button>
+              <button 
+                onClick={() => handleRejectFile(file._id )}
+                className="accept-button"
+              >
+                <Check size={16} />
+                <span>Reject</span>
               </button>
             </div>
           ))}
@@ -151,11 +216,18 @@ function FileReceive() {
               </div>
               
               <button 
-                onClick={() => handleAcceptFolder(folder._id)}
+                onClick={() => handleAcceptFolder(folder.folderName , folder.createdBy._id)}
                 className="accept-button"
               >
                 <Check size={16} />
                 <span>Accept</span>
+              </button>
+              <button 
+                onClick={() => handleRejectFolder(folder._id)}
+                className="accept-button"
+              >
+                <Check size={16} />
+                <span>Reject</span>
               </button>
             </div>
           ))}

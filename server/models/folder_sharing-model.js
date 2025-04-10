@@ -3,8 +3,10 @@ const mongoose = require("mongoose");
 const folderSchema = new mongoose.Schema({
     folderName: String,
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    sharedWith: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], 
-    status : { type: String }, // 0 -> Accepted , 1-> rejected 
+    sharedWith: [{
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      status: { type: String, enum: ['0', '1', '2'], default: '1' } // 0 = accepted, 1 = pending
+    }]
   }, { timestamps: true });
   
 
