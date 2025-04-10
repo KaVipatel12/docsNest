@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import Modal from "../components/Modal";
 import { Auth } from "../context/Auth";
 import axios from "axios";
-import LoadingSpinner from "../components/LoadingSpinner";
 import LoggedInErrorPage from "../components/LoggedInErrorPage";
 
 function Home() {
@@ -15,7 +14,7 @@ function Home() {
   const APP_URI = process.env.REACT_APP_URL;
   const token = localStorage.getItem("token");
   const [isAllEmpty, setIsAllEmpty] = useState(false);
-  const { userData, userLoading } = useContext(Auth);
+  const { userData, userLoading, isAuthenticated} = useContext(Auth);
   const [user, setUser] = useState("");
 
     useEffect(() => {
@@ -74,19 +73,14 @@ function Home() {
   }, [filteredNotes, filteredFolders]);
  
 
-  if (userLoading) {
-    return (
-      <>
-        <Nav />
-        <LoadingSpinner />
-      </>
-    );
-  }
-
-  if (!user && !userLoading) {
+  if (user.length === 0 && !userLoading) {
     return <LoggedInErrorPage />;
   }
-
+  
+  // With this
+  if (!isAuthenticated && !userLoading) {
+    return <LoggedInErrorPage />;
+  }
 
  return (
     <>
@@ -98,7 +92,7 @@ function Home() {
           className="icon file-icon"
           style={{ textDecoration: "none" }}
         >
-        <i class="ri-stackshare-line"></i>        
+        <i className="ri-stackshare-line"></i>        
         </Link>
         <Link
           to="/file"

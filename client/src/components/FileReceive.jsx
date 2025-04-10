@@ -21,9 +21,7 @@ function FileReceive() {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      console.log("Files:", response.data.msg);
-      setReceivedFiles(response.data.msg);
+            setReceivedFiles(response.data.msg);
     } catch (error) {
       console.error("Error fetching files:", error);
       setReceivedFiles([]);
@@ -41,9 +39,7 @@ function FileReceive() {
           Authorization: `Bearer ${token}`,
         },
       });
-      
-      console.log("Folders:", response.data.msg);
-      setReceivedFolders(response.data.msg);
+            setReceivedFolders(response.data.msg);
     } catch (error) {
       console.error("Error fetching folders:", error);
       setReceivedFolders([]);

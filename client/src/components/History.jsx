@@ -41,7 +41,6 @@ function History() {
       });
 
       // Debugging: Log the response data to check if it's correct
-      console.log("API Response:", response.data);
 
       const { msg } = response.data; // Directly accessing the 'msg' array
 

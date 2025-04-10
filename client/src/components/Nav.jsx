@@ -15,7 +15,6 @@ function Nav({searchQuery}) {
   useEffect(() => {
     if(userData){
         setUser(userData);
-        console.log(userData)
     }
   }, [userData])
   return (

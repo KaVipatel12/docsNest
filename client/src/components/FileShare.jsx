@@ -45,7 +45,6 @@ function FileShare() {
               },
             }
           );
-          console.log(response.data.msg);
           setUsers(response.data.msg);
         } catch (error) {
           setUsers([]);
@@ -72,7 +71,6 @@ function FileShare() {
         },
       });
       if (Array.isArray(response.data.msg)) {
-        console.log(response.data.msg);
         setFolders(response.data.msg);
       } else {
         setFolders([]);
@@ -208,7 +206,7 @@ function FileShare() {
       {/* Search Bar Section */}
       <div className="search-section">
         <div className="search-container">
-          <h2 className="search-heading">Search Users</h2>
+          <h2 className="search-heading">Search Users using email</h2>
           <div className="search-input-container">
             <input
               type="text"

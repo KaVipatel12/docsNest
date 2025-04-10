@@ -197,7 +197,7 @@ function FolderMainPage() {
           <i className="ri-file-line"></i>
         </Link>
         <div  className="icon file-icon" onClick={handleIconClick}>
-        <i class="ri-file-upload-line"></i>        
+        <i className="ri-file-upload-line"></i>        
         </div>
               {/* Hidden file input */}
       <input

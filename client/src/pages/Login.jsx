@@ -27,7 +27,7 @@ function Login(){
         localStorage.setItem("token", response.data.token);
         toast.success(response.data.msg)
         await userInfo();
-        navigate("/"); 
+          navigate("/"); 
     } catch (error) {
         if (error.response) {
           console.error('Error:', error.response.data.msg);
