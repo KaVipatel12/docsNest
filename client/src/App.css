@@ -56,6 +56,11 @@ body {
   overflow-y: auto;
 }
 
+.button-header{
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
 /* === Navbar Icons === */
 .icon-header {
   position: fixed;

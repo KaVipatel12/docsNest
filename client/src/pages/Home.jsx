@@ -94,6 +94,13 @@ function Home() {
 
       <div className="icon-header">
         <Link
+          to="/filesharing"
+          className="icon file-icon"
+          style={{ textDecoration: "none" }}
+        >
+        <i class="ri-stackshare-line"></i>        
+        </Link>
+        <Link
           to="/file"
           className="icon file-icon"
           style={{ textDecoration: "none" }}
@@ -102,7 +109,6 @@ function Home() {
         </Link>
         <Modal button={false} />
       </div>
-
       <main className="main-container">
         <div className="card-container">
           {isAllEmpty ? (
