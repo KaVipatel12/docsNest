@@ -86,6 +86,32 @@ body {
   }
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Ensure label doesn't overlap when focusing on the password field */
+.password-field input:focus + .underline + label,
+.password-field input:valid + .underline + label {
+  transform: translateY(-20px);
+  font-size: 15px;
+  color: #4158d0;
+}
+
 .icon {
   font-size: 32px;
   background-color: white;
@@ -342,13 +368,6 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 9999;
-}
-
-.flex-body {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  transition: all 0.2s ease-in-out;
 }
 
 .flex-body i {

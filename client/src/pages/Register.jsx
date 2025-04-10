@@ -80,15 +80,23 @@ function Register() {
               <div className="underline" />
               <label htmlFor>User Name</label>
             </div>
-            <div className="input-data">
-              <div className="flex-body">
-              <input type={ show ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)}/>
-              <i className={show ? "ri-eye-line" : "ri-eye-off-line"} onClick={toggleButton}></i> 
-                </div>
-              <div className="underline" />
-              <label htmlFor>Password</label>
             </div>
-          </div>
+            <div className="form-row">
+              <div className="input-data password-field">
+                <input 
+                  type={show ? "text" : "password"} 
+                  required 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="password-input"
+                />
+                <span className="password-toggle" onClick={toggleButton}>
+                  <i className={show ? "ri-eye-line" : "ri-eye-off-line"}></i>
+                </span>
+                <div className="underline" />
+                <label htmlFor="">Password</label>
+              </div>
+            </div>
           <div className="form-row">
             <div className="input-data textarea">
               <div className="form-row submit-btn">
