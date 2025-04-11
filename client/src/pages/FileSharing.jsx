@@ -28,7 +28,6 @@ export default function FileSharing() {
   if(!userData && !userLoading){
     return (
     <>
-    <Nav></Nav>
     <LoggedInErrorPage></LoggedInErrorPage>
     </>
     )

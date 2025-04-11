@@ -51,15 +51,6 @@ function Nav({searchQuery}) {
             ) : (
               <>
                 <li className="nav-item">
-                  <Link
-                    className="nav-link active"
-                    aria-current="page"
-                    to="/profile"
-                  >
-                    Profile
-                  </Link>
-                </li>
-                <li className="nav-item">
                 <Link className="nav-link" to="/register">
                 Register
                     </Link>
