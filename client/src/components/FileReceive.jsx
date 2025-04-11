@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { File, Folder, Check } from 'lucide-react';
+import { File, Folder, Check, X } from 'lucide-react';
 import "../filereceive.css";
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -21,7 +21,7 @@ function FileReceive() {
           Authorization: `Bearer ${token}`,
         },
       });
-            setReceivedFiles(response.data.msg);
+      setReceivedFiles(response.data.msg);
     } catch (error) {
       console.error("Error fetching files:", error);
       setReceivedFiles([]);
@@ -39,7 +39,7 @@ function FileReceive() {
           Authorization: `Bearer ${token}`,
         },
       });
-            setReceivedFolders(response.data.msg);
+      setReceivedFolders(response.data.msg);
     } catch (error) {
       console.error("Error fetching folders:", error);
       setReceivedFolders([]);
@@ -60,37 +60,19 @@ function FileReceive() {
     });
   };
 
-  const handleAcceptFile = async (shareId , title , description) => {
-
+  const handleAcceptFile = async (shareId, title, description) => {
     try {
-     const response = await axios.post(`${APP_URI}/user/addnote`, {
-        shareId , title, description
+      const response = await axios.post(`${APP_URI}/user/addnote`, {
+        shareId, title, description
       }, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-      toast.success(response.data.msg)
+      toast.success(response.data.msg);
       fetchFiles();
     } catch (error) {
-            toast.error("Something went wrong. Please try again.");
-  };
-}
-
-  const handleAcceptFolder = async (folderName , senderId) => {
-    try {
-      const response = await axios.post(`${APP_URI}/filesharing/acceptfolder`, {
-        folderName , senderId
-      }, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      toast.success(response.data.msg)
-      fetchFolders();
-    }  catch (error) {
       if (error.response) {
         toast.error(error.response.data.msg); 
       } else if (error.request) {
@@ -98,7 +80,30 @@ function FileReceive() {
       } else {
         toast.error("Something went wrong. Please try again.");
       }
-};
+    }
+  };
+
+  const handleAcceptFolder = async (folderName, senderId) => {
+    try {
+      const response = await axios.post(`${APP_URI}/filesharing/acceptfolder`, {
+        folderName, senderId
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success(response.data.msg);
+      fetchFolders();
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.msg); 
+      } else if (error.request) {
+        toast.error("No response from the server. Please try again.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
+    }
   };
 
   const handleRejectFolder = async (folderId) => {
@@ -111,9 +116,9 @@ function FileReceive() {
           Authorization: `Bearer ${token}`,
         },
       });
-      toast.success(response.data.msg)
+      toast.success(response.data.msg);
       fetchFolders();
-    }  catch (error) {
+    } catch (error) {
       if (error.response) {
         toast.error(error.response.data.msg); 
       } else if (error.request) {
@@ -121,7 +126,7 @@ function FileReceive() {
       } else {
         toast.error("Something went wrong. Please try again.");
       }
-};
+    }
   };
 
   const handleRejectFile = async (fileId) => {
@@ -134,9 +139,9 @@ function FileReceive() {
           Authorization: `Bearer ${token}`,
         },
       });
-      toast.success(response.data.msg)
-      fetchFolders();
-    }  catch (error) {
+      toast.success(response.data.msg);
+      fetchFiles(); // Fixed: was calling fetchFolders() instead
+    } catch (error) {
       if (error.response) {
         toast.error(error.response.data.msg); 
       } else if (error.request) {
@@ -144,7 +149,7 @@ function FileReceive() {
       } else {
         toast.error("Something went wrong. Please try again.");
       }
-};
+    }
   };
 
   useEffect(() => {
@@ -170,9 +175,9 @@ function FileReceive() {
           {receivedFiles.length > 0 && receivedFiles.map((file) => (
             <div key={file._id} className="file-item">
               <div className="file-icon-container">
-                <File size={40} color="white" />
+                <File size={40} color="white" className="file-icon" />
                 <div className="file-details">
-                  <div className="file-name">{file.fileName || "" } </div>
+                  <div className="file-name">{file.fileName || ""}</div>
                   <div className="file-info">
                     Sent by <span className="highlight">{file.uploadedBy.email || ""}</span> • 
                     <span className="highlight">{formatDate(file.uploadedAt) || ""}</span>
@@ -180,20 +185,24 @@ function FileReceive() {
                 </div>
               </div>
               
-              <button 
-                onClick={() => handleAcceptFile(file._id , file.fileName, file.content )}
-                className="accept-button"
-              >
-                <Check size={16} />
-                <span>Accept</span>
-              </button>
-              <button 
-                onClick={() => handleRejectFile(file._id )}
-                className="accept-button"
-              >
-                <Check size={16} />
-                <span>Reject</span>
-              </button>
+              <div className="action-buttons">
+                <button 
+                  onClick={() => handleAcceptFile(file._id, file.fileName, file.content)}
+                  className="accept-button"
+                  aria-label="Accept file"
+                >
+                  <Check size={16} />
+                  <span>Accept</span>
+                </button>
+                <button 
+                  onClick={() => handleRejectFile(file._id)}
+                  className="reject-button"
+                  aria-label="Reject file"
+                >
+                  <X size={16} />
+                  <span>Reject</span>
+                </button>
+              </div>
             </div>
           ))}
 
@@ -201,7 +210,7 @@ function FileReceive() {
           {receivedFolders.length > 0 && receivedFolders.map((folder) => (
             <div key={folder._id} className="file-item">
               <div className="file-icon-container">
-                <Folder size={40} color="white" />
+                <Folder size={40} color="white" className="file-icon" />
                 <div className="file-details">
                   <div className="file-name">{folder.folderName}</div>
                   <div className="file-info">
@@ -211,20 +220,24 @@ function FileReceive() {
                 </div>
               </div>
               
-              <button 
-                onClick={() => handleAcceptFolder(folder.folderName , folder.createdBy._id)}
-                className="accept-button"
-              >
-                <Check size={16} />
-                <span>Accept</span>
-              </button>
-              <button 
-                onClick={() => handleRejectFolder(folder._id)}
-                className="accept-button"
-              >
-                <Check size={16} />
-                <span>Reject</span>
-              </button>
+              <div className="action-buttons">
+                <button 
+                  onClick={() => handleAcceptFolder(folder.folderName, folder.createdBy._id)}
+                  className="accept-button"
+                  aria-label="Accept folder"
+                >
+                  <Check size={16} />
+                  <span>Accept</span>
+                </button>
+                <button 
+                  onClick={() => handleRejectFolder(folder._id)}
+                  className="reject-button"
+                  aria-label="Reject folder"
+                >
+                  <X size={16} />
+                  <span>Reject</span>
+                </button>
+              </div>
             </div>
           ))}
         </div>
