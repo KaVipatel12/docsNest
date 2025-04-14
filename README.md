@@ -26,20 +26,20 @@ Upload single files into specific folders quickly and securely.
 
 ### 4. File Sharing  
 Users can share their created files or folders with other users by searching for their registered email. A history section is provided to view all transactions.  
-![File Sharing Screenshot 1](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filesharing.png)  
-![File Sharing Screenshot 2](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filereceive.png)  
-![File History Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filehistory.png)
+![File Sharing Screenshot 1](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filesharing.PNG)  
+![File Sharing Screenshot 2](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filereceive.PNG)  
+![File History Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filehistory.PNG)
 
 ---
 
 ### 5. View All Notes & Files  
 See all your uploaded files and folders displayed in a beautiful card layout.  
-![View All Files Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/homemain.png)
+![View All Files Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/homemain.PNG)
 
 ---
 
 ### 6. Make Account Using Email and Password  
-![Account Creation Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/homepageauth.png)
+![Account Creation Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/homepageauth.PNG)
 
 ---
 
