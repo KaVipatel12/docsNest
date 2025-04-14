@@ -1,6 +1,6 @@
 # DocsNest 
 
-**DocsNest** is a full stack web application that allows users to create folders, upload and manage files, and organize their digital documents efficiently. It's designed with a clean, gradient-based UI and built on the powerful MERN stack.
+**DocsNest** is a full-stack web application that allows users to create folders, upload and manage files, and organize their digital documents efficiently. It's designed with a clean, gradient-based UI and built on the powerful MERN stack.
 
 ---
 
@@ -15,7 +15,7 @@ Users can create custom folders to organize files and notes.
 
 ### 2. Create Files  
 Users can create custom files.  
-![Create Files Screenshot](public/screenshots/file.png)
+![Create Files Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/file.PNG)
 
 ---
 
@@ -26,20 +26,20 @@ Upload single files into specific folders quickly and securely.
 
 ### 4. File Sharing  
 Users can share their created files or folders with other users by searching for their registered email. A history section is provided to view all transactions.  
-![File Sharing Screenshot 1](public/screenshots/filesharing.png)  
-![File Sharing Screenshot 2](public/screenshots/filereceive.png)  
-![File History Screenshot](public/screenshots/filehistory.png)
+![File Sharing Screenshot 1](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filesharing.png)  
+![File Sharing Screenshot 2](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filereceive.png)  
+![File History Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/filehistory.png)
 
 ---
 
 ### 5. View All Notes & Files  
 See all your uploaded files and folders displayed in a beautiful card layout.  
-![View All Files Screenshot](public/screenshots/homemain.png)
+![View All Files Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/homemain.png)
 
 ---
 
 ### 6. Make Account Using Email and Password  
-![Account Creation Screenshot](public/screenshots/homepageauth.png)
+![Account Creation Screenshot](https://raw.githubusercontent.com/KaVipatel12/docsNest/master/client/public/Screen%20shots/homepageauth.png)
 
 ---
 
