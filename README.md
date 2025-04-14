@@ -11,14 +11,14 @@ Users can create custom folders to organize files and notes.
 
 ### 2. Create Files   
 Users can create custom Files.
-public/Screen shots/file.png
+![Upload Screenshot](public/Screen shots/file.png)
 
 ### 3. Upload Files  
 Upload single files into specific folders quickly and securely.  
 
 ---
 
-## 4 File sharing 
+### 4 File sharing 
 Users can share his created file or folder with another users by searching registered email. And A history section is given where all the trasaction can be viewed 
 public/Screen shots/filesharing.png
 public/Screen shots/filereceive.png
