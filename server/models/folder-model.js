@@ -1,25 +1,26 @@
 const mongoose = require("mongoose");
 
-const noteSchema = mongoose.Schema({
+const folderSchema = mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
-  title: {
+  folderName: {
     type: String,
     require: true,
   },
-  description: {
+  fileName: {
     type: String,
     require: true,
   },
-  access : {
+
+  access: {
     type: String,
     enum: ["private", "public"],
     default: "private"
   }
 });
 
-const Notes = new mongoose.model("Notes", noteSchema);
+const Folders = new mongoose.model("Folders", folderSchema);
 
-module.exports = Notes;
+module.exports = Folders;

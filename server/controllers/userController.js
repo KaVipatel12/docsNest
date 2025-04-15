@@ -1,6 +1,8 @@
 const User = require("../models/user-model");
 const Note = require("../models/note-model");
 const fileSharing = require("../models/file_sharing-model");
+const Folders = require("../models/folder-model");
+const Notes = require("../models/note-model");
 
 const addNote = async (req, res, next) => {
   try {
@@ -149,6 +151,7 @@ const fetchUserData = async (req, res, next) => {
   }
 };
 
+// const changeFileAccess = async ()
 const fetchAllUsers = async (req , res , next) => {
   try{
     const {queryEmail} = req.body; 
@@ -157,15 +160,74 @@ const fetchAllUsers = async (req , res , next) => {
     console.log(fetchUsers)
     res.status(200).send({msg : fetchUsers})
   }catch(err){
-    console.log(err)
-    res.status(500).send({msg : "There is some error in the server"})
+    err.status = 500; 
+    next(err); 
   }
 }
+
+const modifyFileAccess = async (req , res , next) => {
+  const userId = req.user._id; 
+  const {title} = req.body; 
+
+  try{
+    const updateAccess = await Notes.findOneAndUpdate({user : userId, title},
+      [
+        {
+          $set : {
+            access : {
+              $cond : {
+                if : { $eq : ["$access", "private"]}, 
+                then : "public",
+                else : "private"
+              }
+            }
+          }
+        }
+      ]
+      , {new : true}); 
+
+      res.status(200).send({msg : updateAccess})
+  }catch(err){
+   err.status = 500; 
+   next(err)
+  }
+}
+
+const modifyFolderFileAccess = async (req , res , next) => {
+  const userId = req.user._id; 
+  const {folderName , fileName} = req.body; 
+
+  try{
+    const updateAccess = await Folders.findOneAndUpdate({user : userId, folderName, fileName},
+      [
+        {
+          $set : {
+            access : {
+              $cond : {
+                if : { $eq : ["$access", "private"]}, 
+                then : "public",
+                else : "private"
+              }
+            }
+          }
+        }
+      ]
+      , {new : true}); 
+      console.log(updateAccess)
+      res.status(200).send({msg : updateAccess})
+  }catch(err){
+   err.status = 500; 
+   next(err)
+  }
+}
+
 module.exports = {
   addNote,
   updateNote,
   deleteNote,
   bookMark,
   fetchUserData, 
-  fetchAllUsers
+  fetchAllUsers,
+  modifyFileAccess, 
+  modifyFolderFileAccess
 };

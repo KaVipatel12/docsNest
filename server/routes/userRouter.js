@@ -10,4 +10,6 @@ router.route("/deletenote/:noteId").delete(authUser, userController.deleteNote)
 router.route("/bookmark/:noteId").patch(authUser, userController.bookMark)
 router.route("/fetchuserdata").get(authUser, userController.fetchUserData)
 router.route("/fetchallusers").post(userController.fetchAllUsers)
+router.route("/modifyfileaccess").post(authUser , userController.modifyFileAccess)
+router.route("/modifyfolderfileaccess").post(authUser , userController.modifyFolderFileAccess)
 module.exports = router; 

@@ -5,8 +5,6 @@ const folderSharing = require("../models/folder_sharing-model");
 const fs = require("fs").promises;
 const path = require("path");
 const Notes = require("../models/note-model");
-const { error } = require("console");
-
 
 const shareFilesAndFolders = async (req, res ) => {
   const { fileName = [], folderName = [], receiverId = [] } = req.body;
@@ -107,7 +105,6 @@ const shareFilesAndFolders = async (req, res ) => {
   }
 };
 
-  
 const receiverFile = async (req, res ) => {
   const userId = req.user._id;
 
@@ -125,8 +122,6 @@ const receiverFile = async (req, res ) => {
   }
   return res.status(200).send({ msg: fetchFiles });
 };
-
-
 
 const receiveFolder = async (req, res ) => {
   const userId = req.user._id;
@@ -149,7 +144,6 @@ const receiveFolder = async (req, res ) => {
     return res.status(500).send({ msg: "There is some error in the server" });
   }
 };
-
 
 const acceptFolder = async (req, res ) => {
   const userId = req.user._id; 
@@ -217,7 +211,6 @@ const rejectFolder = async (req, res ) => {
     return res.status(500).send({ msg: "There is some error in the server" });
   }
 };
-
 
 const rejectFile = async (req, res ) => {
   const userId = req.user._id; 
@@ -315,5 +308,57 @@ const fetchHistory = async (req, res) => {
   }
 };
 
+const showFileWithLink = async (req , res) => {
+  const {userId , fileName} = req.params; 
 
-module.exports = { shareFilesAndFolders, receiverFile, receiveFolder, acceptFolder, rejectFile , rejectFolder, fetchHistory};
+try{
+  const findUser = await User.findById(userId).populate("notes"); 
+
+  if(!findUser){
+    return res.status(406).send({msg : "User not found"})
+  }
+  const fetchNote = findUser.notes.find(notes => notes._id.toString() === fileName);
+  if(fetchNote.access === "private"){
+    return res.status(406).send({msg : "Can't access private folder"})
+  } 
+
+  if(!fetchNote){
+    return res.status(406).send({msg : "Notes not found"})
+  }
+
+  res.status(200).send({msg : fetchNote}); 
+}catch(error){
+  res.status(500).send({msg : "There is some error in the server"})
+}
+}
+
+const showFolderFileWithLink = async (req , res) => {
+  const {userId , folderName , fileName} = req.params;  
+  const findUser = await User.findById(userId).populate("folders"); 
+  console.log("Find user" + findUser)
+
+  if(!findUser){
+    return res.status(406).send({msg : "User not found"}); 
+  }
+
+   const findFile = findUser.folders.filter(folder => folder.folderName === folderName).find(files => files.fileName === fileName);
+   console.log("Filtered Files" + findFile)
+   if(findFile.access === "public"){     
+     const fileDir = path.join(__dirname, "..", "userNotes", userId , folderName , fileName); 
+     try{
+       await fs.access(fileDir);  
+       try{
+         const file = await fs.readFile(fileDir , "utf-8"); 
+         return res.status(200).send({msg : file})
+        }catch(error){
+          return res.status(500).send({msg : "Error in reading file"})
+        }
+      }catch(error){
+        return res.status(500).send({msg : "File not found"})
+      }
+    }else{
+      return res.status(500).send({msg : "File is private"}); 
+    }
+}
+
+module.exports = { shareFilesAndFolders, receiverFile, receiveFolder, acceptFolder, rejectFile , rejectFolder, fetchHistory, showFileWithLink, showFolderFileWithLink};

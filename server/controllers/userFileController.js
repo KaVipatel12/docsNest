@@ -1,3 +1,4 @@
+const Folders = require("../models/folder-model");
 const User = require("../models/user-model");
 // const fs = require("fs");
 const fs = require("fs").promises;
@@ -30,14 +31,19 @@ const createFolder = async (req, res, next) => {
   }
 };
 
-// creating file in the specific folder.
 const createFile = async (req, res, next) => {
   const userId = req.user._id;
   const folderId = userId.toString();
-  const { content, folderName, fileName } = req.body; // Ensure fileName is provided
+  const { content, folderName, fileName } = req.body;
+
+  // Validate inputs
+  if (!fileName || !content) {
+    return res
+      .status(400)
+      .json({ msg: "File name and content are required." });
+  }
 
   try {
-    // Define correct folder and file paths
     const folderPath = path.join(
       __dirname,
       "..",
@@ -45,25 +51,46 @@ const createFile = async (req, res, next) => {
       folderId,
       folderName
     );
-    const filePath = path.join(folderPath, fileName); // Append filename
+    const filePath = path.join(folderPath, fileName);
 
     // Check if folder exists
     try {
-      fs.access(folderPath); // Check for directory, NOT file
+      await fs.access(folderPath);
     } catch (error) {
-      return res.status(409).json({ msg: "Directory not found" });
+      return res.status(409).json({ msg: "Folder not found." });
     }
 
-    // Write file asynchronously
+    // Try writing the file
     try {
-      fs.writeFile(filePath, content, "utf-8");
+      await fs.writeFile(filePath, content, "utf-8");
+
+      // ✅ File was successfully written, now save to DB
+      const createNewFile = new Folders({
+        user: userId,
+        folderName,
+        fileName,
+      });
+
+      const createdFile = await createNewFile.save();
+      await User.findByIdAndUpdate(
+        userId,
+        {
+          $push: { folders: createdFile._id},
+        },
+        { new: true }
+      );
+
       return res
         .status(201)
         .json({ msg: "File created successfully", path: filePath });
+
     } catch (error) {
-      return res.status(500).json({ msg: "Error in creating file" });
+      console.error("Error writing file:", error);
+      return res.status(500).json({ msg: "Error writing the file." });
     }
+
   } catch (err) {
+    console.error("Unhandled Error:", err);
     err.status = 500;
     next(err);
   }
@@ -72,31 +99,29 @@ const createFile = async (req, res, next) => {
 const updateFolder = async (req, res, next) => {
   const { oldName, newName } = req.body;
   const userId = req.user._id.toString();
-  console.log("Reached")
-  console.log(oldName , newName)
   const folderPath = path.join(__dirname, "..", "userNotes", userId);
   const oldFolderPath = path.join(folderPath, oldName);
   const newFolderPath = path.join(folderPath, newName);
+
   try {
     try {
       await fs.access(newFolderPath);
-      return res
-        .status(400)
-        .send({ msg: "File name already exists, give a new name" });
-    } catch {
-      console.log("No dublicate");
-    }
+      return res.status(400).send({ msg: "Folder name already exists" });
+    } catch {}
 
-    try {
-      await fs.rename(oldFolderPath, newFolderPath);
-      return res.status(200).send({ msg: "File name updated" });
-    } catch (error) {
-      return res.status(400).send({ msg: "Error in server" });
-    }
+    await fs.rename(oldFolderPath, newFolderPath);
+
+    // Update folderName in MongoDB
+    await Folders.updateMany(
+      { user: userId, folderName: oldName },
+      { $set: { folderName: newName } }
+    );
+
+    return res.status(200).send({ msg: "Folder name updated" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     error.status = 500;
-    next(500);
+    next(error);
   }
 };
 
@@ -108,67 +133,52 @@ const updateFileName = async (req, res, next) => {
   const newFilePath = path.join(filePath, newName);
 
   try {
-    // Check if new file name already exists
-    try {
-      await fs.access(newFilePath);
-      return res
-        .status(400)
-        .send({ msg: "File name already exists, give a new name" });
-    } catch {
-      console.log("No dublicate");
-    }
+    await fs.access(newFilePath);
+    return res.status(400).send({ msg: "File name already exists" });
+  } catch {}
 
-    // Rename file
-    await fs.rename(oldFilePath, newFilePath);
-    return res.status(200).send({ msg: "Name changed Successfully" });
-  } catch (error) {
-    console.error("Error renaming file:", error);
-    next(new Error("Internal Server Error"));
-  }
+  await fs.rename(oldFilePath, newFilePath);
+
+  // Update fileName in MongoDB
+  await Folders.findOneAndUpdate(
+    { user: userId, fileName: oldName, folderName },
+    { $set: { fileName: newName } }
+  );
+
+  return res.status(200).send({ msg: "File name changed successfully" });
 };
 
 const updateFileContent = async (req, res, next) => {
   const { newContent, oldFileName, newFileName, folderName } = req.body;
   const userId = req.user._id.toString();
 
-  const oldFilePath = path.resolve(
-    __dirname,
-    "..",
-    "userNotes",
-    userId,
-    folderName,
-    oldFileName
-  );
-  const newFilePath = path.resolve(
-    __dirname,
-    "..",
-    "userNotes",
-    userId,
-    folderName,
-    newFileName
-  );
+  const oldFilePath = path.resolve(__dirname, "..", "userNotes", userId, folderName, oldFileName);
+  const newFilePath = path.resolve(__dirname, "..", "userNotes", userId, folderName, newFileName);
 
   try {
-    // Check if the old file exists
     await fs.access(oldFilePath);
-  } catch (error) {
+  } catch {
     return res.status(404).json({ msg: "Original file not found" });
   }
 
   try {
     if (oldFilePath === newFilePath) {
-      // just update content if there is same file
       await fs.writeFile(oldFilePath, newContent, "utf-8");
       return res.status(200).json({ msg: "File updated successfully" });
     } else {
       try {
-        // If new file name exists already
         await fs.access(newFilePath);
         return res.status(400).json({ msg: "File name already exists" });
       } catch {
-        //  New file name doesn't exist: safe to rename + update
         await fs.rename(oldFilePath, newFilePath);
         await fs.writeFile(newFilePath, newContent, "utf-8");
+
+        // Rename in DB
+        await Folders.findOneAndUpdate(
+          { user: userId, fileName: oldFileName, folderName },
+          { $set: { fileName: newFileName } }
+        );
+
         return res.status(200).json({ msg: "File renamed and updated successfully" });
       }
     }
@@ -178,63 +188,65 @@ const updateFileContent = async (req, res, next) => {
   }
 };
 
-
 const deleteFile = async (req, res, next) => {
   const { fileName, folderName } = req.body;
   const userId = req.user._id.toString();
+
+  const filePath = path.join(__dirname, "..", "userNotes", userId, folderName, fileName);
+
   try {
-    const filePath = path.join(
-      __dirname,
-      "..",
-      "userNotes",
-      userId,
+    await fs.access(filePath);
+    await fs.unlink(filePath);
+
+    // Remove from DB
+    const deletedDoc = await Folders.findOneAndDelete({
+      user: userId,
+      fileName,
       folderName,
-      fileName
-    );
-    try {
-      await fs.access(filePath);
-      try {
-        await fs.unlink(filePath);
-        res.status(200).send({ msg: "File deleted" });
-      } catch (err) {
-        res.status(400).send({ msg: "Error in deleting file" });
-      }
-    } catch (error) {
-      res.status(409).send({ msg: "File not found" });
+    });
+
+    if (deletedDoc) {
+      await User.findByIdAndUpdate(userId, {
+        $pull: { folders: deletedDoc._id },
+      });
     }
-  } catch (error) {
-    error.status = 500;
-    next(error);
+
+    return res.status(200).send({ msg: "File deleted" });
+  } catch (err) {
+    return res.status(400).send({ msg: "Error deleting file or not found" });
   }
 };
 
 const deleteFolder = async (req, res, next) => {
   const { folderName } = req.body;
   const userId = req.user._id.toString();
+
+  const folderPath = path.join(__dirname, "..", "userNotes", userId, folderName);
+
   try {
-    const filePath = path.join(
-      __dirname,
-      "..",
-      "userNotes",
-      userId,
-      folderName
-    );
-    try {
-      await fs.access(filePath);
-      try {
-        await fs.rm(filePath, { recursive: true, force: true });
-        res.status(200).send({ msg: "Folder deleted" });
-      } catch (err) {
-        res.status(400).send({ msg: "Error in deleting Folder" });
-      }
-    } catch (error) {
-      res.status(409).send({ msg: "Folder not found" });
+    await fs.access(folderPath);
+    await fs.rm(folderPath, { recursive: true, force: true });
+
+    // Find all files under this folder
+    const deletedFiles = await Folders.find({ user: userId, folderName });
+
+    // Remove from User model
+    if(deletedFiles){
+      const deletedIds = deletedFiles.map((file) => file._id);
+      await User.findByIdAndUpdate(userId, {
+        $pull: { folders: { $in: deletedIds } },
+      });
+      
+      // Delete all Folders entries
+      await Folders.deleteMany({ user: userId, folderName });
     }
+
+    return res.status(200).send({ msg: "Folder and its files deleted" });
   } catch (error) {
-    error.status = 500;
-    next(error);
+    return res.status(409).send({ msg: "Folder not found or error deleting folder" });
   }
 };
+
 
 const fetchFolder = async (req, res , next) => {
   const userId = req.user._id.toString(); 

@@ -14,9 +14,9 @@ const userFileRouter = require("./routes/userFileRouter");
 const errorMiddleware = require("./middlewares/errorMiddleWare");
 const fileSharingRouter = require("./routes/fileSharingRouter")
 
-app.use(helmet());
+// app.use(helmet());
 app.use(cors({
-    origin : process.env.CLIENT_APP_URL, 
+    origin : ['http://localhost:3000'], 
     methods : ['GET' , 'POST' , 'PUT' , 'PATCH' , 'DELETE'], 
     credentials : true
 })); 

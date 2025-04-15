@@ -17,8 +17,10 @@ const userSchema = mongoose.Schema({
             type : mongoose.Schema.Types.ObjectId, 
             ref : 'Notes'
         }], 
-        bookmarks : [{ type: mongoose.Schema.Types.ObjectId, ref: "Notes" }], 
-
+        folders : [{
+            type : mongoose.Schema.Types.ObjectId,
+            ref : 'Folders'
+        }],
         fileSharing : [{type : mongoose.Schema.Types.ObjectId, ref: 'fileSharing' }], 
         folderSharing : [{type : mongoose.Schema.Types.ObjectId, ref: 'folderSharing' }]
 }); 
