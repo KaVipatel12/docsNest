@@ -139,8 +139,7 @@ const bookMark = async (req, res, next) => {
 const fetchUserData = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    console.log(userId)
-    const fetchedNotes = await User.findById(userId).populate("notes").populate("bookmarks");
+    const fetchedNotes = await User.findById(userId).populate("notes").populate("folders");
     if (!fetchedNotes) {
       return res.status(409).send({ msg: "Notes not Found" });
     }
