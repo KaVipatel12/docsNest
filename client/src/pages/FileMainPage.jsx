@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import LoadingSpinner from "../components/LoadingSpinner";
 import LoggedInErrorPage from "../components/LoggedInErrorPage";
 import LoadingButton from "../components/LoadingButton";
+import SettingsModal from "../components/SettingsModal"; // Import the new component
 
 function FileMainPage() {
   const APP_URI = process.env.REACT_APP_URL
@@ -21,14 +22,16 @@ function FileMainPage() {
   const [user, setUser] = useState("");
   const [loading, setLoading] = useState(true);
   const [btnLoading, setBtnLoading] = useState({ save: false, update: false, delete: false });
-
+  const [copyIconState, setCopyIconState] = useState("initial");
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isPublic, setIsPublic] = useState(false); // Default to public for new files
+  
   const fileName = noteId?.split("_").join(" ");
   const folder = folderName?.split("_").join(" ");
-;
 
-useEffect(() => {
-  document.title = `DocsNest : File`;
-}, []);
+  useEffect(() => {
+    document.title = `DocsNest : File`;
+  }, []);
 
   useEffect(() => {
     if (!userLoading) {
@@ -43,6 +46,7 @@ useEffect(() => {
       if (foundNote) {
         setTitle(foundNote.title);
         setDescription(foundNote.description);
+        setIsPublic(foundNote.access === "public" ? true : false);
       }
     }
   }, [userData, fileName, folder, noteId]);
@@ -60,8 +64,12 @@ useEffect(() => {
         }
       );
       setDescription(response.data.msg);
+      
+      // If the response includes visibility information, update the state
+      if (response.data.access) {
+        setIsPublic(response.data.access === "public" ? true : false);
+      }
     } catch (error) {
-      console.error(error);
       toast.error("Something went wrong while fetching file content.");
     }
   }, [folder, fileName, token, APP_URI]);
@@ -72,6 +80,31 @@ useEffect(() => {
       fetchFiles();
     }
   }, [fetchFiles, folder, fileName]);
+
+  const handleCopyLink = () => {
+    // Create a sharable link based on the current page
+    const baseURL = window.location.origin
+    const sharableLink = folder ? `${baseURL}/sharedFile/${userData._id}/${folder.split(" ").join("_")}/${fileName.split(" ").join("_")}` : `${baseURL}/sharedFile/${userData._id}/${fileName.split(" ").join("_")}`;
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(sharableLink)
+      .then(() => {
+        toast.success("Sharable link copied to clipboard!");
+        setCopyIconState("copied");
+        
+        // Reset the icon state after 2 seconds
+        setTimeout(() => {
+          setCopyIconState("initial");
+        }, 2000);
+      })
+      .catch(err => {
+        toast.error("Failed to copy link. Please try again.");
+      });
+  };
+
+  const toggleVisibility = (newVisibility) => {
+    setIsPublic(newVisibility);
+  };
 
   const handleFileSubmit = async () => {
     if (!title || !description) {
@@ -87,7 +120,12 @@ useEffect(() => {
     try {
       const response = await axios.post(
         `${APP_URI}/user/file/createfile`,
-        { content: description, fileName: title, folderName: folder },
+        { 
+          content: description, 
+          fileName: title, 
+          folderName: folder,
+          isPublic: isPublic // Include visibility setting 
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -97,8 +135,8 @@ useEffect(() => {
       );
       toast.success(response.data.msg);
       userInfo();
+      navigate(-1)
     } catch (error) {
-      console.error(error);
       toast.error("Error saving note. Please try again.");
     }
     setBtnLoading(prev => ({ ...prev, save: false }));
@@ -116,8 +154,12 @@ useEffect(() => {
     setBtnLoading(prev => ({ ...prev, save: true }));
     try {
       const response = await axios.post(
-        `${APP_URI}/user/addnote` ,
-        { description , title },
+        `${APP_URI}/user/addnote`,
+        { 
+          description, 
+          title,
+          isPublic: isPublic // Include visibility setting
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -127,8 +169,8 @@ useEffect(() => {
       );
       toast.success(response.data.msg);
       userInfo();
+      navigate(1)
     } catch (error) {
-      console.error(error);
       toast.error("Error saving note. Please try again.");
     }
     setBtnLoading(prev => ({ ...prev, save: false }));
@@ -152,6 +194,7 @@ useEffect(() => {
           newContent: description,
           oldFileName: fileName,
           folderName: folder,
+          isPublic: isPublic // Include visibility setting
         },
         {
           headers: {
@@ -163,7 +206,6 @@ useEffect(() => {
       toast.success(response.data.msg);
       userInfo();
     } catch (error) {
-      console.error(error);
       toast.error("Error updating file. Please try again.");
     }
     setBtnLoading(prev => ({ ...prev, update: false }));
@@ -185,6 +227,7 @@ useEffect(() => {
         {
           newTitle: title,
           newDescription: description,
+          isPublic: isPublic // Include visibility setting
         },
         {
           headers: {
@@ -196,7 +239,6 @@ useEffect(() => {
       toast.success(response.data.msg);
       userInfo();
     } catch (error) {
-      console.error(error);
       toast.error("Error updating note. Please try again.");
     }
     setBtnLoading(prev => ({ ...prev, update: false }));
@@ -217,11 +259,10 @@ useEffect(() => {
       toast.success(response.data.msg);
       userInfo();
       navigate("/");
-   } catch (error) {
+    } catch (error) {
       document.body.classList.remove("modal-open");
       const backdrops = document.querySelectorAll(".modal-backdrop");
       backdrops.forEach((backdrop) => backdrop.remove());
-      console.error(error);
       toast.error("Error deleting note.");
     }
     setBtnLoading(prev => ({ ...prev, delete: false }));
@@ -247,7 +288,6 @@ useEffect(() => {
       userInfo();
       navigate("/");
     } catch (error) {
-      console.error(error);
       toast.error("Error deleting file. Please try again.");
     }
     setBtnLoading(prev => ({ ...prev, delete: false }));
@@ -257,10 +297,20 @@ useEffect(() => {
     setTitle("")
     setDescription("")
   }
+  
   const clearWhiteSpace = () => {
     setTitle(title => title.replace(/\s+/g, ' ').trim())
     setDescription(description => description.replace(/\s+/g, ' ').trim())
   }
+  
+  const openSettingsModal = () => {
+    setIsSettingsModalOpen(true);
+  };
+  
+  const closeSettingsModal = () => {
+    setIsSettingsModalOpen(false);
+  };
+  
   if (loading) {
     return (
       <>
@@ -278,12 +328,43 @@ useEffect(() => {
     <>
       <Nav />
       <div className="notepad">
-        <textarea
-          className="title-area"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Title"
-        />
+        <div className="icon-bar">
+          {(fileName && fileName !== "0") && (
+            <>
+              <i 
+                className={`ri-link-m ${copyIconState === "copied" ? "text-success" : "text-purple"}`} 
+                onClick={handleCopyLink}
+                style={{ 
+                  fontSize: "1.8rem", 
+                  cursor: "pointer", 
+                  marginRight: "10px", 
+                  color: copyIconState === "copied" ? "#28a745" : "#6610f2",
+                  transition: "color 0.3s ease"
+                }}
+                title="Copy share link"
+              />
+              <i 
+                className="ri-settings-3-fill text-blue"
+                onClick={openSettingsModal}
+                style={{ 
+                  fontSize: "1.8rem", 
+                  cursor: "pointer",
+                  color: "#1976d2",
+                  transition: "color 0.3s ease"
+                }}
+                title="Settings"
+              />
+            </>
+          )}
+        </div>
+        <div className="file-title-container">
+          <textarea
+            className="title-area"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Title"
+          />
+        </div>
         <textarea
           className="note-area"
           value={description}
@@ -332,10 +413,54 @@ useEffect(() => {
               />
             )
           )}
-        <button className="btn btn-primary" onClick={clearText}>clear</button>
-        <button className="btn btn-primary" onClick={clearWhiteSpace}>clear space</button>
+          <button className="btn btn-primary" onClick={clearText}>Clear</button>
+          <button className="btn btn-primary" onClick={clearWhiteSpace}>Clear Space</button>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal 
+        isOpen={isSettingsModalOpen}
+        onClose={closeSettingsModal}
+        isPublic={isPublic}
+        toggleVisibility={toggleVisibility}
+        isUpdate={fileName !== "0" && fileName}
+        userData={userData}
+        fileName={fileName}
+        folder={folder}
+        noteId={noteId}
+        title={title}
+        description={description}
+        token={token}
+        APP_URI={APP_URI}
+        userInfo={userInfo}
+      />
+
+      <style jsx>{`
+        .icon-bar {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+        
+        .file-title-container {
+          display: flex;
+          align-items: center;
+          width: 100%;
+        }
+        
+        .text-purple {
+          color: #6610f2;
+        }
+        
+        .text-success {
+          color: #28a745;
+        }
+        
+        .text-blue {
+          color: #1976d2;
+        }
+      `}</style>
     </>
   );
 }

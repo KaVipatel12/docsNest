@@ -217,6 +217,7 @@ function FolderMainPage() {
             )
             .map((file) => (
               <Card
+                img = "/Images/file.png"
                 file={true}
                 title={file}
                 key={file}

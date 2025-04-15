@@ -315,8 +315,10 @@ const fetchFileContent = async (req, res , next) => {
 
     try{
       const files = await fs.readFile(directoryPath, 'utf-8'); 
-      console.log(files)
-      return res.status(200).send({msg : files})
+      const fetchFile = await Folders.findOne({ user: userId, folderName, fileName }, "access").lean();
+      const access = fetchFile.access; 
+      console.log(fetchFile)
+      return res.status(200).send({msg : files , access})
     }catch(error){
       console.log(error)
       return res.status(200).send({msg : "There is some error"});   

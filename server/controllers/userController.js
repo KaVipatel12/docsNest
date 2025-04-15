@@ -167,7 +167,6 @@ const fetchAllUsers = async (req , res , next) => {
 const modifyFileAccess = async (req , res , next) => {
   const userId = req.user._id; 
   const {title} = req.body; 
-
   try{
     const updateAccess = await Notes.findOneAndUpdate({user : userId, title},
       [
@@ -184,7 +183,7 @@ const modifyFileAccess = async (req , res , next) => {
         }
       ]
       , {new : true}); 
-
+      console.log(updateAccess)
       res.status(200).send({msg : updateAccess})
   }catch(err){
    err.status = 500; 

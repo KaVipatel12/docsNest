@@ -8,6 +8,7 @@ import Login from "./pages/Login.jsx";
 import Logout from "./pages/Logout.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import FileSharing from "./pages/FileSharing.jsx";
+import SharedPage from "./components/SharedPage.jsx";
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
         <Route path="/folder/:folderName" element={<FolderMainPage></FolderMainPage>}></Route>
         <Route path="/logout" element={<Logout></Logout>}></Route>
         <Route path="/filesharing" element={<FileSharing></FileSharing>}></Route>
+        <Route path="/sharedFile/:userId/:folderName/:fileName" element={<SharedPage></SharedPage>}></Route>
+        <Route path="/sharedFile/:userId/:fileName" element={<SharedPage></SharedPage>}></Route>
       </Routes>
     </Router>
 </>

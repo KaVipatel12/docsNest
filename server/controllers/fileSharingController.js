@@ -335,7 +335,6 @@ try{
 const showFolderFileWithLink = async (req , res) => {
   const {userId , folderName , fileName} = req.params;  
   const findUser = await User.findById(userId).populate("folders"); 
-  console.log("Find user" + findUser)
 
   if(!findUser){
     return res.status(406).send({msg : "User not found"}); 

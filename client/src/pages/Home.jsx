@@ -25,6 +25,7 @@ function Home() {
     if (userData) {
       setUser(userData);
       setAllNotes(userData.notes || []);
+      console.log(userData)
     }
   }, [userData]);
 
@@ -115,7 +116,7 @@ function Home() {
               {/* Filtered Files */}
               {filteredNotes.map((note) => (
                 <Card
-                  img="/Images/file2.png"
+                  img="/Images/file.png"
                   file={true}
                   title={note.title}
                   description={note.description}

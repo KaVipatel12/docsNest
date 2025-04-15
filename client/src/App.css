@@ -14,7 +14,19 @@ body {
   display: flex;
   flex-direction: column;
 }
+.file-title-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
 
+.text-purple {
+  color: #6610f2;
+}
+
+.text-success {
+  color: #28a745;
+}
 .file-sharing-header {
   padding: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

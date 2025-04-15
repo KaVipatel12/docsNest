@@ -27,6 +27,7 @@ function AuthProvider({ children }) {
           "Authorization": `Bearer ${token}`
         }
       });
+      console.log(response.data.msg)
       setUserData(response.data.msg);
       setIsAuthenticated(true);
     } catch (error) {
