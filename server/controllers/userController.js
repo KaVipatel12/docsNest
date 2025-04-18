@@ -139,7 +139,7 @@ const fetchUserData = async (req, res, next) => {
     const userId = req.user._id;
 
     const fetchedNotes = await User.findById(userId)
-      .populate("notes")
+      .populate("notes").populate("folders")
       .lean(); 
 
     if (!fetchedNotes) {

@@ -1,30 +1,25 @@
 const User = require("../models/user-model");
 const fileSharing = require("../models/file_sharing-model");
 const folderSharing = require("../models/folder_sharing-model");
+const Folder = require("../models/folder-model")
 // const fs = require("fs");
 const fs = require("fs").promises;
 const path = require("path");
 const Notes = require("../models/note-model");
 
-const shareFilesAndFolders = async (req, res ) => {
+const shareFilesAndFolders = async (req, res) => {
   const { fileName = [], folderName = [], receiverId = [] } = req.body;
   const userId = req.user._id;
 
-  console.log(fileName, folderName, receiverId);
   let fileResults = [];
   let fileErrors = [];
 
-  let folderShareIds = [];
-  let folderErrors = [];
-
   try {
-    //  Handle File Sharing
     if (fileName.length > 0) {
-      for (const file of fileName) {
-        const note = await Notes.findById(file);
-
+      for (const fileId of fileName) {
+        const note = await Notes.findById(fileId);
         if (!note) {
-          fileErrors.push({ msg: `Note ${file} not found` });
+          fileErrors.push({ msg: `Note ${fileId} not found` });
           continue;
         }
 
@@ -57,46 +52,13 @@ const shareFilesAndFolders = async (req, res ) => {
       }
     }
 
-    // Handle Folder Sharing
-    if (folderName.length > 0) {
-      for (const folder of folderName) {
-        try {
-          const sharedWithUsers = receiverId.map(id => ({
-            userId: id,
-            status: '1' // pending
-          }));
-
-          const folderShare = await folderSharing.create({
-            folderName: folder,
-            createdBy: userId,
-            sharedWith: sharedWithUsers,
-          });
-
-          folderShareIds.push(folderShare._id);
-        } catch (err) {
-          folderErrors.push({ msg: `Failed to share folder ${folder}` });
-        }
-      }
-
-      // Push all shared folder IDs to user
-      if (folderShareIds.length > 0) {
-        await User.findByIdAndUpdate(
-          userId,
-          { $push: { folderSharing: { $each: folderShareIds } } },
-          { new: true }
-        );
-      }
-    }
-
     return res.status(200).send({
-      msg: "Files and folders shared successfully",
+      msg: "Files shared successfully",
       shared: {
         files: fileResults,
-        folders: folderShareIds,
       },
       errors: {
         files: fileErrors.length > 0 ? fileErrors : undefined,
-        folders: folderErrors.length > 0 ? folderErrors : undefined,
       },
     });
   } catch (error) {
@@ -104,6 +66,7 @@ const shareFilesAndFolders = async (req, res ) => {
     return res.status(500).send({ msg: "Server error while sharing" });
   }
 };
+
 
 const receiverFile = async (req, res ) => {
   const userId = req.user._id;
@@ -145,51 +108,111 @@ const receiveFolder = async (req, res ) => {
   }
 };
 
-const acceptFolder = async (req, res ) => {
-  const userId = req.user._id; 
-  const { folderName, senderId } = req.body;
-
-  console.log(folderName, senderId, userId);
-
-  const basePath = path.join(__dirname, "..", "userNotes"); 
-  const sourceDir = path.join(basePath, senderId.toString(), folderName); 
-  const userDir = path.join(basePath, userId.toString());
-  const destDir = path.join(userDir, folderName); 
+const acceptFile = async (req, res) => {
+  const receiverId = req.user._id;
+  const { fileId } = req.body;
 
   try {
-    // Ensure user directory exists
-    try {
-      await fs.access(userDir); 
-    } catch {
-      console.log("Creating user directory");
-      await fs.mkdir(userDir, { recursive: true }); 
+    const file = await fileSharing.findOne({
+      _id: fileId,
+      "sharedWith.userId": receiverId,
+    }).populate("uploadedBy");
+
+    if (!file) {
+      return res.status(404).json({ msg: "File not found or not shared with you." });
     }
 
-    // Check if folder already exists
-    try {
-      await fs.access(destDir);
-      return res.status(400).send({ msg: "Directory with same name exists in your storage" });
-    } catch {
-      console.log("Destination folder does not exist, continuing...");
+    const originalNote = await Notes.findById(file.fileId);
+    if (!originalNote) {
+      return res.status(404).json({ msg: "Original note not found." });
     }
 
-    // Copy folder content
-    await fs.cp(sourceDir, destDir, { recursive: true });
+    // ✅ Create new note for receiver
+    const newNote = new Notes({
+      user: receiverId,
+      title: originalNote.title + " (shared by " + file.uploadedBy.username + ")",
+      description: originalNote.description,
+      access: "private", // Or you can preserve original access
+    });
 
-    // Update sharedWith status for this user
-    await folderSharing.updateOne(
-      { folderName, "sharedWith.userId": userId },
-      { $set: { "sharedWith.$.status": "0" } } // Set to accepted
+    const savedNote = await newNote.save();
+
+    // ✅ Update fileSharing status to accepted
+    await fileSharing.updateOne(
+      { _id: fileId, "sharedWith.userId": receiverId },
+      { $set: { "sharedWith.$.status": "0" } }
     );
 
-    return res.status(200).send({ msg: "Folder saved successfully" });
+    // ✅ Add to receiver's notes[]
+    await User.findByIdAndUpdate(receiverId, {
+      $push: { notes: savedNote._id },
+    });
 
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({ msg: "There is some error in the server" });
+    return res.status(200).json({ msg: "Note accepted and added to your account." });
+
+  } catch (err) {
+    console.error("Error in acceptFile:", err);
+    return res.status(500).json({ msg: "Internal server error" });
   }
 };
 
+const acceptFolder = async (req, res) => {
+  const receiverId = req.user._id;
+  const { folderName, senderId } = req.body;
+
+  try {
+    const sharedFolder = await folderSharing.findOne({
+      folderName,
+      createdBy: senderId,
+      'sharedWith.userId': receiverId,
+    });
+
+    if (!sharedFolder) {
+      return res.status(404).send({ msg: "Folder not found" });
+    }
+
+    // ✅ Find all files from sender's folder
+    const senderFiles = await Folder.find({
+      user: senderId,
+      folderName: folderName
+    });
+
+    if (!senderFiles.length) {
+      return res.status(404).send({ msg: "No files found in the shared folder" });
+    }
+
+    const createdFiles = [];
+
+    for (const file of senderFiles) {
+      const newFile = new Folder({
+        user: receiverId,
+        folderName: file.folderName + " (shared)",
+        fileName: file.fileName,
+        content: file.content,
+        favourite: false,
+        access: "private",
+      });
+
+      const saved = await newFile.save();
+      createdFiles.push(saved._id);
+    }
+
+    // ✅ Update folder sharing status
+    await folderSharing.updateOne(
+      { _id: sharedFolder._id, 'sharedWith.userId': receiverId },
+      { $set: { 'sharedWith.$.status': '0' } }
+    );
+
+    return res.status(200).send({
+      msg: "Folder accepted. Files added to your account.",
+      filesCreated: createdFiles.length
+    });
+
+  } catch (error) {
+    console.error("Accept folder error:", error);
+    return res.status(500).send({ msg: "Server error while accepting folder" });
+  }
+};
 const rejectFolder = async (req, res ) => {
   const userId = req.user._id; 
   const { folderId } = req.body; 
@@ -332,32 +355,34 @@ try{
 }
 }
 
-const showFolderFileWithLink = async (req , res) => {
-  const {userId , folderName , fileName} = req.params;  
-  const findUser = await User.findById(userId).populate("folders"); 
+const showFolderFileWithLink = async (req, res) => {
+  const { userId, folderName, fileName } = req.params;
 
-  if(!findUser){
-    return res.status(406).send({msg : "User not found"}); 
-  }
-
-   const findFile = findUser.folders.filter(folder => folder.folderName === folderName).find(files => files.fileName === fileName);
-   console.log("Filtered Files" + findFile)
-   if(findFile.access === "public"){     
-     const fileDir = path.join(__dirname, "..", "userNotes", userId , folderName , fileName); 
-     try{
-       await fs.access(fileDir);  
-       try{
-         const file = await fs.readFile(fileDir , "utf-8"); 
-         return res.status(200).send({msg : file})
-        }catch(error){
-          return res.status(500).send({msg : "Error in reading file"})
-        }
-      }catch(error){
-        return res.status(500).send({msg : "File not found"})
-      }
-    }else{
-      return res.status(500).send({msg : "File is private"}); 
+  try {
+    const findUser = await User.findById(userId).populate("folders");
+    if (!findUser) {
+      return res.status(406).send({ msg: "User not found" });
     }
-}
 
-module.exports = { shareFilesAndFolders, receiverFile, receiveFolder, acceptFolder, rejectFile , rejectFolder, fetchHistory, showFileWithLink, showFolderFileWithLink};
+    const findFile = findUser.folders
+      .filter(folder => folder.folderName === folderName)
+      .find(file => file.fileName === fileName);
+
+    if (!findFile) {
+      return res.status(406).send({ msg: "File not found" });
+    }
+
+    if (findFile.access !== "public") {
+      return res.status(403).send({ msg: "File is private" });
+    }
+
+    return res.status(200).send({ msg: findFile.content });
+
+  } catch (error) {
+    console.error("Error in showFolderFileWithLink:", error);
+    return res.status(500).send({ msg: "There is some error in the server" });
+  }
+};
+
+
+module.exports = { shareFilesAndFolders, receiverFile, receiveFolder, acceptFolder, rejectFile , rejectFolder, fetchHistory, showFileWithLink, showFolderFileWithLink, acceptFile};

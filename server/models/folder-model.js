@@ -7,15 +7,19 @@ const folderSchema = mongoose.Schema({
   },
   folderName: {
     type: String,
-    require: true,
+    required: true,
   },
   fileName: {
     type: String,
-    require: true,
+    required: true,
   },
-  favourite : {
-    type : Boolean, 
-    default : false
+  content: {
+    type: String,
+    default: ""
+  },
+  favourite: {
+    type: Boolean,
+    default: false
   },
   access: {
     type: String,
@@ -23,6 +27,7 @@ const folderSchema = mongoose.Schema({
     default: "private"
   }
 });
+
 
 const Folders = new mongoose.model("Folders", folderSchema);
 

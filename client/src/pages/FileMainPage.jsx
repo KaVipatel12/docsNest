@@ -137,7 +137,7 @@ function FileMainPage() {
       userInfo();
       navigate(-1)
     } catch (error) {
-      toast.error("Error saving note. Please try again.");
+      toast.error(error.response.data.msg || "Error saving note. Please try again.")
     }
     setBtnLoading(prev => ({ ...prev, save: false }));
   };
@@ -206,7 +206,7 @@ function FileMainPage() {
       toast.success(response.data.msg);
       userInfo();
     } catch (error) {
-      toast.error("Error updating file. Please try again.");
+      toast.error(error.response.data.msg || "Error saving note. Please try again.")
     }
     setBtnLoading(prev => ({ ...prev, update: false }));
   };

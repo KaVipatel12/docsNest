@@ -11,6 +11,7 @@ router.route("/sharefileandfolder").post(authUser, fileSharingController.shareFi
 router.route("/receivefile").get(authUser, fileSharingController.receiverFile)     
 router.route("/receivefolder").get(authUser, fileSharingController.receiveFolder)     
 router.route("/acceptfolder").post(authUser, fileSharingController.acceptFolder)     
+router.route("/acceptfile").post(authUser, fileSharingController.acceptFile)     
 router.route("/rejectFile").post(authUser, fileSharingController.rejectFile)     
 router.route("/rejectFolder").post(authUser, fileSharingController.rejectFolder)     
 router.route("/sharinghistory").get(authUser, fileSharingController.fetchHistory)     

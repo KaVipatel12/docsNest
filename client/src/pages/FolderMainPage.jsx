@@ -155,13 +155,13 @@ function FolderMainPage() {
 
     const onAddToFav = async (id) => {
       try{
-        await axios.patch(`${APP_URI}/user/file/addfavourite/${id}`, {} ,{
+       const response = await axios.patch(`${APP_URI}/user/file/addfavourite/${id}`, {} ,{
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
-          toast.success("Added");
+          toast.success(response.data.msg);
           fetchFiles()
         } catch(error) {
           toast.error('Error')
