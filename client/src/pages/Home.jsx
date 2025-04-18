@@ -29,6 +29,9 @@ function Home() {
     }
   }, [userData]);
 
+  useEffect(() => {
+    toast.success("The app is under contruction, Exciting  features are coming soon")
+  }, [])
   // Close modals on component unmount
   useEffect(() => {
     return () => {
