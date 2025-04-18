@@ -17,6 +17,10 @@ const noteSchema = mongoose.Schema({
     type: String,
     enum: ["private", "public"],
     default: "private"
+  },
+  favourite : {
+    type: Boolean,
+    default: "false"
   }
 });
 

@@ -134,23 +134,32 @@ const bookMark = async (req, res, next) => {
   }
 };
 
-// fetching notes as well as bookmarks as well as user profile.
-
 const fetchUserData = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const fetchedNotes = await User.findById(userId).populate("notes").populate("folders");
+
+    const fetchedNotes = await User.findById(userId)
+      .populate("notes")
+      .lean(); 
+
     if (!fetchedNotes) {
       return res.status(409).send({ msg: "Notes not Found" });
     }
-    res.status(200).send({ msg: fetchedNotes });
+
+    // Sort notes by `favourite` field (true first)
+    const sortedNotes = [...fetchedNotes.notes].sort(
+      (a, b) => b.favourite - a.favourite
+    );
+
+    // Return user with sorted notes
+    res.status(200).send({ msg: { ...fetchedNotes, notes: sortedNotes } });
   } catch (err) {
     err.status = 500;
     next(err);
   }
 };
 
-// const changeFileAccess = async ()
+
 const fetchAllUsers = async (req , res , next) => {
   try{
     const {queryEmail} = req.body; 
@@ -219,6 +228,60 @@ const modifyFolderFileAccess = async (req , res , next) => {
   }
 }
 
+const uploadFile = async (req, res, next) => {
+  try {
+    const file = req.file;
+    const userId = req.user._id; 
+    if (!file) {
+      console.log("Error")
+      return res.status(400).send({msg : "No file uploaded"});
+    }
+  
+    const addNote = await new Notes({
+      title : file.originalname, 
+      description : file.buffer, 
+      user : userId
+    })
+
+    const createdNote = await addNote.save()
+
+    if(!createdNote){
+      return res.status(500).send({msg : "There is some error in the server"}); 
+    }
+
+    await User.findByIdAndUpdate(userId , {
+      $push : {
+        notes : createdNote._id
+      } }, {
+        new : true
+      }
+    )
+    return res.status(200).send({msg : `${file.originalname} uploaded successfully`})
+  } catch (err) {
+   err.status = 500;
+   next(err)
+  }
+}
+
+const addFavourite = async (req , res , next) => {
+  const {noteId} = req.params; 
+
+  try{
+    
+    const updateFav = await Note.findByIdAndUpdate(noteId , 
+      [{
+        $set: {
+          favourite: { $not: "$favourite" }
+        }
+      }], {new : true}
+    )
+    res.status(200).send({msg : updateFav})
+  }catch(err){
+    console.log(error)
+  err.status = 500; 
+  next(err)
+}}
+
 module.exports = {
   addNote,
   updateNote,
@@ -227,5 +290,7 @@ module.exports = {
   fetchUserData, 
   fetchAllUsers,
   modifyFileAccess, 
-  modifyFolderFileAccess
+  modifyFolderFileAccess, 
+  uploadFile,
+  addFavourite
 };

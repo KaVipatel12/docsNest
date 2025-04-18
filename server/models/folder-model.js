@@ -13,7 +13,10 @@ const folderSchema = mongoose.Schema({
     type: String,
     require: true,
   },
-
+  favourite : {
+    type : Boolean, 
+    default : false
+  },
   access: {
     type: String,
     enum: ["private", "public"],

@@ -1,3 +1,4 @@
+const { doesNotThrow } = require("assert");
 const Folders = require("../models/folder-model");
 const User = require("../models/user-model");
 // const fs = require("fs");
@@ -6,7 +7,6 @@ const path = require("path");
 
 const createFolder = async (req, res, next) => {
   const { folderName } = req.body;
-  console.log(folderName)
   const userId = req.user._id.toString();
   const basePath = path.join(__dirname, "..", "userNotes", userId);
   const createFolder = path.join(basePath, folderName);
@@ -26,7 +26,6 @@ const createFolder = async (req, res, next) => {
       path: createFolder,
     });
   } catch (error) {
-    console.error("Error creating folder:", error);
     next(new Error("Internal Server Error"));
   }
 };
@@ -85,12 +84,10 @@ const createFile = async (req, res, next) => {
         .json({ msg: "File created successfully", path: filePath });
 
     } catch (error) {
-      console.error("Error writing file:", error);
       return res.status(500).json({ msg: "Error writing the file." });
     }
 
   } catch (err) {
-    console.error("Unhandled Error:", err);
     err.status = 500;
     next(err);
   }
@@ -119,7 +116,6 @@ const updateFolder = async (req, res, next) => {
 
     return res.status(200).send({ msg: "Folder name updated" });
   } catch (error) {
-    console.log(error);
     error.status = 500;
     next(error);
   }
@@ -183,7 +179,6 @@ const updateFileContent = async (req, res, next) => {
       }
     }
   } catch (error) {
-    console.error("Update Error:", error);
     return res.status(500).json({ msg: "Something went wrong" });
   }
 };
@@ -248,61 +243,54 @@ const deleteFolder = async (req, res, next) => {
 };
 
 
-const fetchFolder = async (req, res , next) => {
-  const userId = req.user._id.toString(); 
-  try{
-    const directoryPath = path.join(
-      __dirname,
-      "..",
-      "userNotes",
-      userId
-    );
+const fetchFolder = async (req, res, next) => {
+  const userId = req.user._id.toString();
 
-    try{
-      const folders = await fs.readdir(directoryPath); 
-      return res.status(200).send({msg : folders})
-    }catch(error){
-      return res.status(200).send({msg : "There is some error"}); 
+  try {
+    const directoryPath = path.join(__dirname, "..", "userNotes", userId);
+
+    let folders = [];
+    try {
+      folders = await fs.readdir(directoryPath); // Read folder names
+    } catch (error) {
+      return res.status(500).json({ msg: "Error reading folders from filesystem." });
     }
 
-  }catch(error){
+    return res.status(200).json({ msg: folders });
+  } catch (error) {
     error.status = 500;
-    next(error)
+    next(error);
   }
-}
+};
 
-const fetchFile = async (req, res , next) => {
-  const userId = req.user._id.toString(); 
-  const {folderName} = req.body; 
+const fetchFile = async (req, res, next) => {
+  const userId = req.user._id.toString();
+  const { folderName } = req.body;
 
-  try{
-    const directoryPath = path.join(
-      __dirname,
-      "..",
-      "userNotes",
-      userId, 
-      folderName
-    );
+  try {
+    const fileDocs = await Folders.find({
+      user: userId,
+      folderName: folderName,
+    });
 
-    try{
-      const files = await fs.readdir(directoryPath); 
-      console.log(files)
-      return res.status(200).send({msg : files})
-    }catch(error){
-      console.log(error)
-      return res.status(200).send({msg : "There is some error"});   
-    }
+    const filesWithFav = fileDocs.map((doc) => ({
+      fileName: doc.fileName,
+      isFavorite: doc.favourite,
+    }));
 
-  }catch(error){
+    filesWithFav.sort((a, b) => b.isFavorite - a.isFavorite);
+
+    return res.status(200).send({ msg: filesWithFav });
+  } catch (error) {
     error.status = 500;
-    next(error)
+    next(error);
   }
-}
+};
+
 
 const fetchFileContent = async (req, res , next) => {
   const userId = req.user._id.toString(); 
   const {folderName, fileName} = req.body; 
-  console.log(fileName)
   try{
     const directoryPath = path.join(
       __dirname,
@@ -317,10 +305,8 @@ const fetchFileContent = async (req, res , next) => {
       const files = await fs.readFile(directoryPath, 'utf-8'); 
       const fetchFile = await Folders.findOne({ user: userId, folderName, fileName }, "access").lean();
       const access = fetchFile.access; 
-      console.log(fetchFile)
       return res.status(200).send({msg : files , access})
     }catch(error){
-      console.log(error)
       return res.status(200).send({msg : "There is some error"});   
     }
 
@@ -335,9 +321,7 @@ const uploadFile = async (req, res , next) =>{
     const file = req.file;
     const userId = req.user._id.toString(); 
     const {folderName} = req.body
-    console.log(file , folderName)
     if (!file) {
-      console.log("Error")
       return res.status(400).send({msg : "No file uploaded"});
     }
     
@@ -345,11 +329,9 @@ const uploadFile = async (req, res , next) =>{
     const filePath = path.join(uploadsDir, file.originalname);
     
     try {
-      console.log("processing")
       await fs.access(filePath);
       return res.status(400).send({msg : `File "${file.originalname}" already exists.`});
     } catch (err) {
-      console.log("File doesn't exist")
     }
 
     await fs.writeFile(filePath, file.buffer);
@@ -359,6 +341,25 @@ const uploadFile = async (req, res , next) =>{
    err.status = 500;
    next(err)
   }
+}
+
+const addFavourite = async (req , res , next) => {
+  const user = req.user._id; 
+  const {fileName , folderName} = req.params; 
+
+  try{
+   const addFav = await Folders.findOneAndUpdate({user, folderName , fileName}, 
+      [{
+        $set: {
+          favourite: { $not: "$favourite" }
+        }
+      }], {new : true}
+  )
+  res.status(200).send({msg : "Set as favourite"})
+}catch(err){
+  err.status = 500; 
+  next(err); 
+}
 }
 module.exports = {
   createFolder,
@@ -371,5 +372,6 @@ module.exports = {
   fetchFile,
   fetchFolder, 
   fetchFileContent,
-  uploadFile
+  uploadFile, 
+  addFavourite
 };

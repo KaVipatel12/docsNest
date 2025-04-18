@@ -57,11 +57,9 @@ function FolderMainPage() {
       if (Array.isArray(fileData)) {
         setFiles(fileData);
       } else {
-        console.error("Expected array but got:", fileData);
         setFiles([]);
       }
     } catch (error) {
-      console.error("Fetch error:", error);
       toast.error(error?.response?.data?.msg || "Something went wrong");
     }
   }, [cleanedFolderName, APP_URI ,token]);
@@ -144,20 +142,31 @@ function FolderMainPage() {
   
     } catch (error) {
       if (error.response) {
-        console.error("Error:", error.response.data.msg);
         toast.error(error.response.data.msg);
       } else if (error.request) {
-        console.error("No response from server:", error.request);
         toast.error("No response from the server. Please try again.");
       } else {
-        console.error("Something else went wrong:", error.message);
         toast.error("Something went wrong. Please try again.");
       }
     }finally{
       setLoading(false)
     }
   };
-  
+
+    const onAddToFav = async (id) => {
+      try{
+        await axios.patch(`${APP_URI}/user/file/addfavourite/${id}`, {} ,{
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+          toast.success("Added");
+          fetchFiles()
+        } catch(error) {
+          toast.error('Error')
+      }
+    }
 
   // Show spinner while loading
   if (loading) {
@@ -213,15 +222,17 @@ function FolderMainPage() {
         {Array.isArray(files) && files.length > 0 ? (
           files
             .filter((file) =>
-              file.toLowerCase().includes(searchQuery.toLowerCase())
+              file.fileName.toLowerCase().includes(searchQuery.toLowerCase())
             )
             .map((file) => (
               <Card
                 img = "/Images/file.png"
                 file={true}
-                title={file}
-                key={file}
-                id={`${folderName}/${file.split(" ").join("_")}`}
+                title={file.fileName}
+                key={file.fileName}
+                id={`${folderName}/${file.fileName.split(" ").join("_")}`}
+                isFavorite= {file.isFavorite}
+                onAddToFav={onAddToFav}
               />
             ))
         ) : (
