@@ -581,3 +581,23 @@ body {
   width: 100%;
   padding: 0.5rem 0;
 }
+
+.circle-dot{
+  height: 10px;
+  width: 10px;
+  border: 50%;
+  border-radius: blue;
+}
+
+.flex-body-nav{
+  display: flex;
+  align-items: center;
+}
+
+.flex-body-nav div{
+  background-color: blue;
+  height: 10px;
+  width: 10px;
+  border-radius: 100%;
+  margin-left: 5px;
+}

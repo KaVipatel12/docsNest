@@ -1,52 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import { File, Folder, Check, X } from 'lucide-react';
 import "../filereceive.css";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { Auth } from '../context/Auth';
 
 function FileReceive() {
-  const [receivedFiles, setReceivedFiles] = useState([]);
-  const [receivedFolders, setReceivedFolders] = useState([]);
-  const [filesLoading, setFilesLoading] = useState(true);
-  const [folderLoading, setFolderLoading] = useState(true);
   const token = localStorage.getItem("token");
+  const [receivedFiles, setReceivedFiles] = useState([])
+  const [receivedFolders, setReceivedFolders] = useState([])
+  const [receiveFilesLoading , setReceiveFilesLoading] = useState(true)
+  const [receiveFoldersLoading , setReceiveFoldersLoading] = useState(true)
+  const {setFileSharingNotification} = useContext(Auth)
   const APP_URI = process.env.REACT_APP_URL;
-
-  const fetchFiles = useCallback(async () => {
-    setFilesLoading(true);
-    try {
-      const response = await axios.get(`${APP_URI}/filesharing/receivefile`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setReceivedFiles(response.data.msg);
-    } catch (error) {
-      console.error("Error fetching files:", error);
-      setReceivedFiles([]);
-    } finally {
-      setFilesLoading(false);
-    }
-  }, [APP_URI, token]);
-        
-  const fetchFolders = useCallback(async () => {
-    setFolderLoading(true);
-    try {
-      const response = await axios.get(`${APP_URI}/filesharing/receivefolder`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setReceivedFolders(response.data.msg);
-    } catch (error) {
-      console.error("Error fetching folders:", error);
-      setReceivedFolders([]);
-    } finally {
-      setFolderLoading(false);
-    }
-  }, [APP_URI, token]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -59,6 +25,61 @@ function FileReceive() {
       hour12: true
     });
   };
+  const fetchReceiveFiles = useCallback(async () => {         // fetching the received file by sharing 
+    setReceiveFilesLoading(true);
+    try {
+      const response = await axios.get(`${APP_URI}/filesharing/receivefile`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      console.log(response.data.msg)
+      setReceivedFiles(response.data.msg);
+// .map(share => ({
+//   fileId: file._id,
+//   fileName: file.fileName,
+//   uploadedBy: file.uploadedBy,
+//   userId: share.userId,
+//   seen: share.seen,
+//   status: share.status
+// }))
+
+// To verify the value you're setting:
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      setReceivedFiles([]);
+    } finally {
+      setReceiveFilesLoading(false);
+    }
+  }, [APP_URI, token, setReceiveFilesLoading, setReceivedFiles]);
+        
+  const fetchReceiveFolders = useCallback(async () => {              // fetching the received file by sharing
+    setReceiveFoldersLoading(true);
+    try {
+      const response = await axios.get(`${APP_URI}/filesharing/receivefolder`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setReceivedFolders(response.data.msg);
+      setFileSharingNotification(false); 
+    } catch (error) {
+      console.error("Error fetching folders:", error);
+      setReceivedFolders([]);
+    } finally {
+      setReceiveFoldersLoading(false);
+    }
+  }, [APP_URI, token, setReceiveFoldersLoading , setReceivedFolders, setFileSharingNotification]);
+
+  useEffect(() => {
+    fetchReceiveFiles()
+  }, [fetchReceiveFiles])
+  useEffect(() => {
+    fetchReceiveFolders()
+  }, [fetchReceiveFolders])
 
   const handleAcceptFile = async (shareId, title, description) => {
     try {
@@ -71,7 +92,7 @@ function FileReceive() {
         },
       });
       toast.success(response.data.msg);
-      fetchFiles();
+      fetchReceiveFiles();
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.msg); 
@@ -94,7 +115,7 @@ function FileReceive() {
         },
       });
       toast.success(response.data.msg);
-      fetchFolders();
+      fetchReceiveFolders();
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.msg); 
@@ -117,7 +138,7 @@ function FileReceive() {
         },
       });
       toast.success(response.data.msg);
-      fetchFolders();
+      fetchReceiveFolders();
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.msg); 
@@ -140,7 +161,7 @@ function FileReceive() {
         },
       });
       toast.success(response.data.msg);
-      fetchFiles(); // Fixed: was calling fetchFolders() instead
+      fetchReceiveFiles(); // Fixed: was calling fetchFolders() instead
     } catch (error) {
       if (error.response) {
         toast.error(error.response.data.msg); 
@@ -152,15 +173,58 @@ function FileReceive() {
     }
   };
 
-  useEffect(() => {
-    fetchFiles();
-  }, [fetchFiles]);
+  const receiveSeen = useCallback(async(files, folders) => {
+    try {
+      await axios.patch(`${APP_URI}/filesharing/markseen`, {
+        files , folders
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      }
+  }, [APP_URI , token])
 
   useEffect(() => {
-    fetchFolders();
-  }, [fetchFolders]);
+    fetchReceiveFiles();
+  }, [fetchReceiveFiles]);
 
-  const isLoading = filesLoading || folderLoading;
+  useEffect(() => {
+    fetchReceiveFolders();
+  }, [fetchReceiveFolders]);
+
+  useEffect(() => {
+    if (
+      !receiveFilesLoading &&
+      !receiveFoldersLoading &&
+      (receivedFiles?.length > 0 || receivedFolders?.length > 0)
+    ){
+      const receiveFilesId = receivedFiles.map(file => ({
+        fileName: file.fileName,
+        sendId: file.uploadedBy 
+      }));
+  
+      const receiveFoldersId = receivedFolders.map(folder => ({
+        folderName: folder.folderName,
+        sendId: folder.createdBy 
+      }));
+  
+      let files = receiveFilesId; 
+      let folders = receiveFoldersId;
+  
+      receiveSeen(files , folders);
+    }
+  }, [
+    receiveFilesLoading,
+    receiveFoldersLoading,
+    receivedFiles,
+    receivedFolders,
+    receiveSeen
+  ]);
+
+  const isLoading = receiveFilesLoading || receiveFoldersLoading;
   const hasNoItems = !isLoading && receivedFiles.length === 0 && receivedFolders.length === 0;
 
   return (

@@ -139,7 +139,7 @@ const fetchUserData = async (req, res, next) => {
     const userId = req.user._id;
 
     const fetchedNotes = await User.findById(userId)
-      .populate("notes").populate("folders")
+      .populate("notes").populate("folders").populate("folderSharing").populate("fileSharing")
       .lean(); 
 
     if (!fetchedNotes) {
@@ -158,7 +158,6 @@ const fetchUserData = async (req, res, next) => {
     next(err);
   }
 };
-
 
 const fetchAllUsers = async (req , res , next) => {
   try{

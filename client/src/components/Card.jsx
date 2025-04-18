@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 function Card({
@@ -6,103 +6,13 @@ function Card({
   title = "Card title",
   file = false,
   id,
-  onDelete,
   onUpdate,
   onAddToFav,
   isFavorite,
 }) {
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowMenu(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleMenuClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowMenu(!showMenu);
-  };
-
-  const handleOptionClick = (e, action) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (action === "delete") {
-      onDelete(id);
-    } else if (action === "update") {
-      onUpdate(id);
-    } else if (action === "favorite") {
-      onAddToFav(id);
-    }
-
-    setShowMenu(false);
-  };
 
   return (
     <div className="position-relative" style={{ width: "18rem" }}>
-      {/* Three dots menu */}
-      <div
-        className="position-absolute top-0 end-0 p-2"
-        style={{ zIndex: 1 }}
-        ref={menuRef}
-      >
-        <button
-          className="btn btn-sm d-flex justify-content-center align-items-center"
-          onClick={handleMenuClick}
-          style={{ width: "30px", height: "30px", background: "#f8f9fa" }}
-        >
-          <span style={{ fontSize: "18px", lineHeight: 1, fontWeight: "bold" }}>
-            ⋮
-          </span>
-        </button>
-
-        {showMenu && (
-          <div
-            className="dropdown-menu show position-absolute end-0"
-            style={{ minWidth: "180px" }}
-          >
-            <button
-              className="dropdown-item"
-              onClick={(e) => handleOptionClick(e, "delete")}
-            >
-              <i className="fas fa-trash-alt me-2"></i> Delete
-            </button>
-            <button
-              className="dropdown-item"
-              onClick={(e) => handleOptionClick(e, "update")}
-            >
-              <i className="fas fa-edit me-2"></i> Update
-            </button>
-          { 
-            file &&           
-            <button
-              className="dropdown-item"
-              onClick={(e) => handleOptionClick(e, "favorite")}
-            >
-              <i
-                className={`${
-                  isFavorite ? "fas fa-star" : "far fa-star"
-                } me-2`}
-                style={{ zIndex: 100 }}
-              ></i>
-              {isFavorite ? "Remove from favorites" : "Add to favorites"}
-            </button>}
-          </div>
-        )}
-      </div>
-
-      {/* Toggle star icon (favorite) */}
     {     
     file &&
     <div

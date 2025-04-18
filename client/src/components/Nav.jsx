@@ -2,9 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Auth } from "../context/Auth";
 function Nav({searchQuery}) {
-  const { userData , userLoading } = useContext(Auth);
+  const { userData , userLoading , fileSharingNotification} = useContext(Auth);
   const [user , setUser ] = useState(); 
   const [search , setSearch ] = useState(""); 
+  const [popNotify , setPopNotify ] = useState(false); 
 
   useEffect(() => {
     if (searchQuery) {
@@ -17,6 +18,11 @@ function Nav({searchQuery}) {
         setUser(userData);
     }
   }, [userData])
+  useEffect(() => {
+    if(fileSharingNotification){
+        setPopNotify(fileSharingNotification);
+    }
+  }, [fileSharingNotification])
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
       <div className="container-fluid">
@@ -64,8 +70,8 @@ function Nav({searchQuery}) {
                 )
             )}
                     <li className="nav-item">
-                    <Link className="nav-link" to="/filesharing">
-                    File Sharing
+                    <Link className="nav-link flex-body-nav" to="/filesharing">
+                    File Sharing { popNotify && <div className="circle-dot"></div> }
                     </Link>
                     </li>
           </ul>

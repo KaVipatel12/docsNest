@@ -13,8 +13,11 @@ const shareFilesAndFolders = async (req, res) => {
 
   let fileResults = [];
   let fileErrors = [];
+  let folderResults = [];
+  let folderErrors = [];
 
   try {
+    // Share Files
     if (fileName.length > 0) {
       for (const fileId of fileName) {
         const note = await Notes.findById(fileId);
@@ -28,7 +31,7 @@ const shareFilesAndFolders = async (req, res) => {
 
         const sharedWithUsers = receiverId.map(id => ({
           userId: id,
-          status: '1' // pending
+          status: '1', // pending
         }));
 
         const fileShare = await fileSharing.create({
@@ -52,13 +55,37 @@ const shareFilesAndFolders = async (req, res) => {
       }
     }
 
+    // Share Folders
+    if (folderName.length > 0) {
+      for (const folder of folderName) {
+        const sharedWithUsers = receiverId.map(id => ({
+          userId: id,
+          status: '1', // pending
+        }));
+
+        const folderShare = await folderSharing.create({
+          folderName: folder,
+          createdBy: userId,
+          sharedWith: sharedWithUsers,
+        });
+
+        folderResults.push({
+          folderName: folder,
+          sharedWith: receiverId,
+          folderId: folderShare._id,
+        });
+      }
+    }
+    console.log(folderResults)
     return res.status(200).send({
-      msg: "Files shared successfully",
+      msg: "Files and folders shared successfully",
       shared: {
         files: fileResults,
+        folders: folderResults,
       },
       errors: {
         files: fileErrors.length > 0 ? fileErrors : undefined,
+        folders: folderErrors.length > 0 ? folderErrors : undefined,
       },
     });
   } catch (error) {
@@ -66,7 +93,6 @@ const shareFilesAndFolders = async (req, res) => {
     return res.status(500).send({ msg: "Server error while sharing" });
   }
 };
-
 
 const receiverFile = async (req, res ) => {
   const userId = req.user._id;
@@ -115,7 +141,7 @@ const acceptFile = async (req, res) => {
   try {
     const file = await fileSharing.findOne({
       _id: fileId,
-      "sharedWith.userId": receiverId,
+      "sharedWith.userId": receiverId, "sharedWith.$.seen" : true
     }).populate("uploadedBy");
 
     if (!file) {
@@ -164,14 +190,14 @@ const acceptFolder = async (req, res) => {
     const sharedFolder = await folderSharing.findOne({
       folderName,
       createdBy: senderId,
-      'sharedWith.userId': receiverId,
+      'sharedWith.userId': receiverId, "sharedWith.$.seen" : true
     });
 
     if (!sharedFolder) {
       return res.status(404).send({ msg: "Folder not found" });
     }
 
-    // ✅ Find all files from sender's folder
+    // Find all files from sender's folder
     const senderFiles = await Folder.find({
       user: senderId,
       folderName: folderName
@@ -197,7 +223,7 @@ const acceptFolder = async (req, res) => {
       createdFiles.push(saved._id);
     }
 
-    // ✅ Update folder sharing status
+    // Update folder sharing status
     await folderSharing.updateOne(
       { _id: sharedFolder._id, 'sharedWith.userId': receiverId },
       { $set: { 'sharedWith.$.status': '0' } }
@@ -220,7 +246,7 @@ const rejectFolder = async (req, res ) => {
   try {
     const update = await folderSharing.updateOne(
       { _id: folderId, "sharedWith.userId": userId },
-      { $set: { "sharedWith.$.status": "2" } } // 2 = rejected
+      { $set: { "sharedWith.$.status": "2", "sharedWith.$.seen" : true } } // 2 = rejected
     );
 
     if (update.modifiedCount === 0) {
@@ -242,7 +268,7 @@ const rejectFile = async (req, res ) => {
   try {
     const update = await fileSharing.updateOne(
       { _id: fileId, "sharedWith.userId": userId },
-      { $set: { "sharedWith.$.status": "2" } } // 2 = rejected
+      { $set: { "sharedWith.$.status": "2", "sharedWith.$.seen" : true } } // 2 = rejected
     );
 
     if (update.modifiedCount === 0) {
@@ -384,5 +410,48 @@ const showFolderFileWithLink = async (req, res) => {
   }
 };
 
+const markSeen = async (req, res) => {
+  const userId = req.user._id;
+  const { files = [], folders = [] } = req.body;
 
-module.exports = { shareFilesAndFolders, receiverFile, receiveFolder, acceptFolder, rejectFile , rejectFolder, fetchHistory, showFileWithLink, showFolderFileWithLink, acceptFile};
+  try {
+    // Mark shared files as seen
+    const fileSeenResults = await Promise.all(
+      files.map(async ({ fileName, sendId }) => {
+        const result = await fileSharing.updateOne(
+          {
+            fileName,
+            uploadedBy: sendId._id,
+            "sharedWith.userId": userId,
+          },
+          { $set: { "sharedWith.$.seen": true } }
+        );
+        return result;
+      })
+    );
+    // Mark shared folders as seen
+    const folderSeenResults = await Promise.all(
+      folders.map(async ({ folderName, sendId }) => {
+        const result = await folderSharing.updateOne(
+          {
+            folderName,
+            createdBy: sendId,
+            "sharedWith.userId": userId,
+          },
+          { $set: { "sharedWith.$.seen": true } }
+        );
+        return result;
+      })
+    );
+
+    console.log("File update results:", fileSeenResults);
+    console.log("Folder update results:", folderSeenResults);
+
+    res.status(200).json({ msg: "Seen status updated successfully." });
+  } catch (err) {
+    console.error("Error updating seen status:", err);
+    res.status(500).json({ msg: "Something went wrong while updating seen." });
+  }
+};
+
+module.exports = { shareFilesAndFolders, receiverFile, receiveFolder, acceptFolder, rejectFile , rejectFolder, fetchHistory, showFileWithLink, showFolderFileWithLink, acceptFile, markSeen};
