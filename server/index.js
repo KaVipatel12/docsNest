@@ -5,6 +5,7 @@ const cors = require("cors")
 const connectDB = require("./utils/db")
 const session = require('express-session');
 const helmet = require('helmet');
+const MongoStore = require("connect-mongo")
 const port = process.env.PORT || 8000
 app.use(express.json()); 
 app.use(express.urlencoded({extended : true})); 
@@ -21,7 +22,7 @@ app.use(helmet());
 app.set('trust proxy', true);
 
 app.use(session({
-    secret: process.env.SESSION_SECRET_KEY,
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
