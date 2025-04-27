@@ -6,7 +6,6 @@ function Card({
   title = "Card title",
   file = false,
   id,
-  onUpdate,
   onAddToFav,
   isFavorite,
 }) {
@@ -48,6 +47,7 @@ function Card({
               className="card-img"
               alt="..."
               style={{ width: "70%", height: "auto" }}
+              loading="lazy"
             />
           </center>
         )}

@@ -3,6 +3,7 @@ const express = require("express");
 const app = express(); 
 const cors = require("cors")
 const connectDB = require("./utils/db")
+const session = require('express-session');
 const helmet = require('helmet');
 const port = process.env.PORT || 8000
 app.use(express.json()); 
@@ -13,8 +14,17 @@ const userRouter = require("./routes/userRouter");
 const userFileRouter = require("./routes/userFileRouter"); 
 const errorMiddleware = require("./middlewares/errorMiddleWare");
 const fileSharingRouter = require("./routes/fileSharingRouter")
+// const fileCollaborationRouter = require("./routes/fileCollaborationRouter")
 
 app.use(helmet());
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },  // development ke liye, production me secure: true (https)
+  }));
+
 app.use(cors({
     origin : process.env.CLIENT_APP_URL, 
     methods : ['GET' , 'POST' , 'PUT' , 'PATCH' , 'DELETE'], 
@@ -25,6 +35,7 @@ app.use("/api/auth", authRouter)
 app.use("/api/user", userRouter)
 app.use("/api/user/file", userFileRouter)
 app.use("/api/filesharing", fileSharingRouter)
+// app.use("/api/filecollaboration", fileCollaborationRouter)
 
 app.use(errorMiddleware)
 

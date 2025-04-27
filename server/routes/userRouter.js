@@ -15,4 +15,5 @@ router.route("/fetchallusers").post(userController.fetchAllUsers)
 router.route("/modifyfileaccess").post(authUser , userController.modifyFileAccess)
 router.route("/modifyfolderfileaccess").post(authUser , userController.modifyFolderFileAccess)
 router.route("/uploadfile").post(authUser , upload.single("file") , userController.uploadFile)
+
 module.exports = router; 

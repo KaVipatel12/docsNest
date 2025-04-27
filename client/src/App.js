@@ -9,6 +9,9 @@ import Logout from "./pages/Logout.jsx";
 import "react-toastify/dist/ReactToastify.css";
 import FileSharing from "./pages/FileSharing.jsx";
 import SharedPage from "./components/SharedPage.jsx";
+import EmailAuth from "./pages/EmailAuth.jsx";
+import OtpAuth from "./pages/OtpAuth.jsx";
+import UpdatePassword from "./pages/UpdatePassword.jsx";
 
 function App() {
   return (
@@ -27,6 +30,9 @@ function App() {
         <Route path="/filesharing" element={<FileSharing></FileSharing>}></Route>
         <Route path="/sharedFile/:userId/:folderName/:fileName" element={<SharedPage></SharedPage>}></Route>
         <Route path="/sharedFile/:userId/:fileName" element={<SharedPage></SharedPage>}></Route>
+        <Route path="/emailverification" element={<EmailAuth></EmailAuth>}></Route>
+        <Route path="/otpverification" element={<OtpAuth></OtpAuth>}></Route>
+        <Route path="/user/update/updatepassword" element={<UpdatePassword></UpdatePassword>}></Route>
       </Routes>
     </Router>
 </>

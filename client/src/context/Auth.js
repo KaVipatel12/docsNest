@@ -26,9 +26,7 @@ function AuthProvider({ children }) {
           "Authorization": `Bearer ${token}`
         }
       });
-      
-      console.log(response.data.msg);
-      
+            
       // Check for unseen file shares
       const unseenFiles = response.data.msg.fileSharing
         ?.flatMap(file => 
@@ -40,13 +38,9 @@ function AuthProvider({ children }) {
         ?.flatMap(folder => 
           folder.sharedWith.filter(share => share.seen === false)
         ) || [];
-      
-      console.log("Unseen files:", unseenFiles);
-      console.log("Unseen folders:", unseenFolders);
-      
+          
       // Set notification flag to true if either files or folders have unseen items
       const hasUnseen = unseenFiles.length > 0 || unseenFolders.length > 0;
-      console.log("Setting notification flag to:", hasUnseen);
       setFileSharingNotification(hasUnseen);
       
       // Set user data

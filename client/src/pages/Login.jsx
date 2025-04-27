@@ -100,7 +100,8 @@ function Login(){
                 </div>
               </div>
             </div>
-            <span>Don't have an Account? <Link to={"/register"}>Register</Link></span>
+            <span>Don't have an Account? <Link to={"/register"}>Register</Link></span> <br />
+            <span>Forget password? <Link to={"/emailverification"}>Forget Password</Link></span>
           </form>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { Auth } from "../context/Auth";
 import axios from "axios";
 import LoggedInErrorPage from "../components/LoggedInErrorPage";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function Home() {
   const [allNotes, setAllNotes] = useState([]);
@@ -17,7 +18,6 @@ function Home() {
   const [isAllEmpty, setIsAllEmpty] = useState(false);
   const { userData, userLoading, isAuthenticated, userInfo} = useContext(Auth);
   const [user, setUser] = useState("");
-  
 
   useEffect(() => {
     if (userData) {
@@ -107,6 +107,10 @@ function Home() {
         toast.error("Something went wrong. Please try again.");
       }
     }
+  }
+  
+  if(userLoading){
+    return <LoadingSpinner></LoadingSpinner>
   }
   
   if (user.length === 0 && !userLoading) {

@@ -78,7 +78,6 @@ const deleteNote = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const noteId = req.params.noteId;
-    console.log("Note id : ", noteId)
     const deletedNote = await Note.findByIdAndDelete(noteId);
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -90,7 +89,6 @@ const deleteNote = async (req, res, next) => {
     }
     res.status(200).send({ msg: "Note deleted successfully!" });
   } catch (err) {
-    console.log(err)
     err.status = 500;
     next(err);
   }
@@ -164,7 +162,6 @@ const fetchAllUsers = async (req , res , next) => {
     const {queryEmail} = req.body; 
     
     const fetchUsers = await User.find({email : {$regex : new RegExp(queryEmail , "i")}}, "email username");
-    console.log(fetchUsers)
     res.status(200).send({msg : fetchUsers})
   }catch(err){
     err.status = 500; 
@@ -191,7 +188,6 @@ const modifyFileAccess = async (req , res , next) => {
         }
       ]
       , {new : true}); 
-      console.log(updateAccess)
       res.status(200).send({msg : updateAccess})
   }catch(err){
    err.status = 500; 
@@ -219,7 +215,6 @@ const modifyFolderFileAccess = async (req , res , next) => {
         }
       ]
       , {new : true}); 
-      console.log(updateAccess)
       res.status(200).send({msg : updateAccess})
   }catch(err){
    err.status = 500; 
@@ -232,7 +227,6 @@ const uploadFile = async (req, res, next) => {
     const file = req.file;
     const userId = req.user._id; 
     if (!file) {
-      console.log("Error")
       return res.status(400).send({msg : "No file uploaded"});
     }
   
@@ -276,7 +270,6 @@ const addFavourite = async (req , res , next) => {
     )
     res.status(200).send({msg : updateFav})
   }catch(err){
-    console.log(error)
   err.status = 500; 
   next(err)
 }}
