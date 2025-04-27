@@ -18,9 +18,6 @@ function Home() {
   const { userData, userLoading, isAuthenticated, userInfo} = useContext(Auth);
   const [user, setUser] = useState("");
   
-    useEffect(() => {
-      document.title = `DocsNest : Home`;
-    }, []);
 
   useEffect(() => {
     if (userData) {
@@ -29,9 +26,6 @@ function Home() {
     }
   }, [userData]);
 
-  useEffect(() => {
-    toast.success("The app is under contruction, Exciting  features are coming soon")
-  }, [])
   // Close modals on component unmount
   useEffect(() => {
     return () => {
