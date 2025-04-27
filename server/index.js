@@ -18,12 +18,18 @@ const fileSharingRouter = require("./routes/fileSharingRouter")
 
 app.use(helmet());
 
+app.set('trust proxy', 1);
 app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },  // development ke liye, production me secure: true (https)
-  }));
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,  // Don't create session until something stored
+  cookie: {
+    secure: true,          // HTTPS only
+    httpOnly: true,        // Can't access cookie via client-side JS
+    sameSite: 'strict',    // Protect from CSRF
+    maxAge: 10 * 60 * 1000 // 10 days ka expiry
+  }
+}));
 
 app.use(cors({
     origin : process.env.CLIENT_APP_URL, 
