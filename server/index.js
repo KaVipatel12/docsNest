@@ -18,16 +18,16 @@ const fileSharingRouter = require("./routes/fileSharingRouter")
 
 app.use(helmet());
 
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production', // Only secure if production
-    httpOnly: true,
-    sameSite: 'strict',
+    secret: process.env.SESSION_SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+    cookie: {
+      secure: true,  
+      sameSite: 'none', 
     maxAge: 10 * 60 * 1000 // 10 minutes
   }
 }));
