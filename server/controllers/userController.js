@@ -204,7 +204,7 @@ const modifyFolderFileAccess = async (req , res , next) => {
   const {folderName , fileName} = req.body; 
 
   try{
-    const updateAccess = await Folders.findOneAndUpdate({user : userId, folderName, fileName},
+    const updateAccess = await Folders.findOneAndUpdate({user : userId, _id : folderName, fileName},
       [
         {
           $set : {

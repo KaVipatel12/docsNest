@@ -21,6 +21,9 @@ const noteSchema = mongoose.Schema({
   favourite : {
     type: Boolean,
     default: "false"
+  }, 
+  password : {
+    type : String
   }
 });
 

@@ -18,4 +18,6 @@ router.route("/sharinghistory").get(authUser, fileSharingController.fetchHistory
 router.route("/markseen").patch(authUser, fileSharingController.markSeen)     
 router.route("/share/:userId/:fileName/").get(fileSharingController.showFileWithLink)     
 router.route("/share/:userId/:folderName/:fileName").get(fileSharingController.showFolderFileWithLink)     
+router.route("/setsharefilepassword").patch(authUser, fileSharingController.setShareFilePassword)     
+router.route("/verifyfilepassword").post(fileSharingController.verifyFilePassword)     
 module.exports = router;

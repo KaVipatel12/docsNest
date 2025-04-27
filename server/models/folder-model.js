@@ -25,6 +25,9 @@ const folderSchema = mongoose.Schema({
     type: String,
     enum: ["private", "public"],
     default: "private"
+  },
+  password : {
+    type : String
   }
 });
 

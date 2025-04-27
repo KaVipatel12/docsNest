@@ -153,7 +153,7 @@ const acceptFile = async (req, res) => {
       return res.status(404).json({ msg: "Original note not found." });
     }
 
-    // ✅ Create new note for receiver
+    // Create new note for receiver
     const newNote = new Notes({
       user: receiverId,
       title: originalNote.title + " (shared by " + file.uploadedBy.username + ")",
@@ -163,13 +163,13 @@ const acceptFile = async (req, res) => {
 
     const savedNote = await newNote.save();
 
-    // ✅ Update fileSharing status to accepted
+    //  Update fileSharing status to accepted
     await fileSharing.updateOne(
       { _id: fileId, "sharedWith.userId": receiverId },
       { $set: { "sharedWith.$.status": "0" } }
     );
 
-    // ✅ Add to receiver's notes[]
+    //  Add to receiver's notes[]
     await User.findByIdAndUpdate(receiverId, {
       $push: { notes: savedNote._id },
     });
@@ -188,7 +188,7 @@ const acceptFolder = async (req, res) => {
 
   try {
     const sharedFolder = await folderSharing.findOne({
-      folderName,
+       folderName,
       createdBy: senderId,
       'sharedWith.userId': receiverId, "sharedWith.$.seen" : true
     });
@@ -239,6 +239,7 @@ const acceptFolder = async (req, res) => {
     return res.status(500).send({ msg: "Server error while accepting folder" });
   }
 };
+
 const rejectFolder = async (req, res ) => {
   const userId = req.user._id; 
   const { folderId } = req.body; 
@@ -454,4 +455,63 @@ const markSeen = async (req, res) => {
   }
 };
 
-module.exports = { shareFilesAndFolders, receiverFile, receiveFolder, acceptFolder, rejectFile , rejectFolder, fetchHistory, showFileWithLink, showFolderFileWithLink, acceptFile, markSeen};
+const setShareFilePassword = async (req , res) => {
+
+  const userId = req.user._id; 
+  const {password, fileName , folderId} = req.body;
+  console.log(password , fileName, folderId)
+  console.log("reached")
+try{  
+  if(folderId){
+    const setPassword = await Folder.findByIdAndUpdate( folderId , {
+      $set : {
+        password : password
+      }
+    }, {new : true} )
+
+    return res.status(200).send({msg : setPassword }); 
+  }
+  const setPassword = await Notes.findByIdAndUpdate( fileName , {
+    $set : {
+      password : password
+    }
+  }, {new : true} )
+
+  return res.status(200).send({msg : setPassword}); 
+}catch(err){
+  console.log(err)
+  err.status = 500; 
+  next(err)
+}}
+
+const verifyFilePassword = async (req, res, next) => {
+  const { password, folder, file } = req.body;
+
+  try {
+    let resource = null;
+    let isMatch = false;
+
+    if (folder) {
+      resource = await Folder.findById(folder);
+      isMatch = resource?.password === password;
+    } else if (file) {
+      resource = await Notes.findById(file);
+      isMatch = resource?.password === password;
+    }
+
+    if (!resource) {
+      return res.status(404).send({ msg: "Resource not found" });
+    }
+
+    if (isMatch) {
+      return res.status(200).send({ msg: resource });
+    }
+
+    return res.status(400).send({ msg: "Invalid password" });
+  } catch (err) {
+    err.status = 500;
+    next(err);
+  }
+};
+
+module.exports = { shareFilesAndFolders, receiverFile, receiveFolder, acceptFolder, rejectFile , rejectFolder, fetchHistory, showFileWithLink, showFolderFileWithLink, acceptFile, markSeen, setShareFilePassword, verifyFilePassword};

@@ -22,7 +22,9 @@ const userSchema = mongoose.Schema({
             ref : 'Folders'
         }],
         fileSharing : [{type : mongoose.Schema.Types.ObjectId, ref: 'fileSharing' }], 
-        folderSharing : [{type : mongoose.Schema.Types.ObjectId, ref: 'folderSharing' }]
+        folderSharing : [{type : mongoose.Schema.Types.ObjectId, ref: 'folderSharing' }], 
+        fileCollab : [{type : mongoose.Schema.Types.ObjectId, ref : "fileCollab"}],
+        folderCollab : [{type : mongoose.Schema.Types.ObjectId, ref : "folderCollab"}]
 }); 
 
 const User = new mongoose.model("User" , userSchema); 
