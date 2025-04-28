@@ -140,7 +140,9 @@ function Home() {
  return (
     <>
       <Nav searchQuery={setSearchQuery} />
-
+      <h3 className="welcome-title">
+        Welcome {user.username} ({user.email})
+      </h3>
       <div className="icon-header">
       <div  className="icon file-icon" >
         <i className="ri-file-upload-line" onClick={handleIconClick}></i> 

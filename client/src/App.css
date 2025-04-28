@@ -19,6 +19,22 @@ body {
   align-items: center;
   width: 100%;
 }
+.welcome-title {
+  font-size: 2rem; /* bigger and clean */
+  font-weight: 700; /* bold and attractive */
+  text-align: center; /* center it horizontally */
+  margin-top: 20px;
+  margin-bottom: 20px;
+  color: #ffffff; /* pure white text */
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6); /* soft glow */
+  animation: fadeIn 1.5s ease-in-out; /* smooth fade in */
+}
+
+/* Optional smooth animation */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
 
 .text-purple {
   color: #6610f2;
