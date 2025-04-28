@@ -15,7 +15,7 @@ const userRouter = require("./routes/userRouter");
 const userFileRouter = require("./routes/userFileRouter"); 
 const errorMiddleware = require("./middlewares/errorMiddleWare");
 const fileSharingRouter = require("./routes/fileSharingRouter")
-// const fileCollaborationRouter = require("./routes/fileCollaborationRouter")
+const fileCollaborationRouter = require("./routes/fileCollaborationRouter")
 
 app.use(helmet());
 
@@ -42,7 +42,7 @@ app.use("/api/auth", authRouter)
 app.use("/api/user", userRouter)
 app.use("/api/user/file", userFileRouter)
 app.use("/api/filesharing", fileSharingRouter)
-// app.use("/api/filecollaboration", fileCollaborationRouter)
+app.use("/api/filecollaboration", fileCollaborationRouter)
 
 app.use(errorMiddleware)
 

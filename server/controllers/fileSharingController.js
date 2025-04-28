@@ -76,7 +76,6 @@ const shareFilesAndFolders = async (req, res) => {
         });
       }
     }
-    console.log(folderResults)
     return res.status(200).send({
       msg: "Files and folders shared successfully",
       shared: {
@@ -141,7 +140,7 @@ const acceptFile = async (req, res) => {
   try {
     const file = await fileSharing.findOne({
       _id: fileId,
-      "sharedWith.userId": receiverId, "sharedWith.$.seen" : true
+      "sharedWith.userId": receiverId
     }).populate("uploadedBy");
 
     if (!file) {
@@ -158,7 +157,7 @@ const acceptFile = async (req, res) => {
       user: receiverId,
       title: originalNote.title + " (shared by " + file.uploadedBy.username + ")",
       description: originalNote.description,
-      access: "private", // Or you can preserve original access
+      access: "private", 
     });
 
     const savedNote = await newNote.save();
@@ -185,17 +184,19 @@ const acceptFile = async (req, res) => {
 const acceptFolder = async (req, res) => {
   const receiverId = req.user._id;
   const { folderName, senderId } = req.body;
-
+  console.log(folderName, senderId);
+  
   try {
     const sharedFolder = await folderSharing.findOne({
-       folderName,
+      folderName,
       createdBy: senderId,
-      'sharedWith.userId': receiverId, "sharedWith.$.seen" : true
+      'sharedWith.userId': receiverId
     });
-
+    
     if (!sharedFolder) {
       return res.status(404).send({ msg: "Folder not found" });
     }
+    console.log(sharedFolder);
 
     // Find all files from sender's folder
     const senderFiles = await Folder.find({
@@ -207,12 +208,32 @@ const acceptFolder = async (req, res) => {
       return res.status(404).send({ msg: "No files found in the shared folder" });
     }
 
+    // Check if the folder name already exists for the receiver
+    let uniqueFolderName = folderName + " (shared)";
+    let counter = 1;
+    
+    // Keep checking until we find a unique folder name
+    let folderExists = await Folder.findOne({
+      user: receiverId,
+      folderName: uniqueFolderName
+    });
+    
+    while (folderExists) {
+      uniqueFolderName = `${folderName} (shared ${counter})`;
+      counter++;
+      
+      folderExists = await Folder.findOne({
+        user: receiverId,
+        folderName: uniqueFolderName
+      });
+    }
+
     const createdFiles = [];
 
     for (const file of senderFiles) {
       const newFile = new Folder({
         user: receiverId,
-        folderName: file.folderName + " (shared)",
+        folderName: uniqueFolderName, // Use the unique folder name
         fileName: file.fileName,
         content: file.content,
         favourite: false,
@@ -226,11 +247,11 @@ const acceptFolder = async (req, res) => {
     // Update folder sharing status
     await folderSharing.updateOne(
       { _id: sharedFolder._id, 'sharedWith.userId': receiverId },
-      { $set: { 'sharedWith.$.status': '0' } }
+      { $set: { 'sharedWith.$.status': '0', 'sharedWith.$.seen': true } }
     );
 
     return res.status(200).send({
-      msg: "Folder accepted. Files added to your account.",
+      msg: `Folder accepted as "${uniqueFolderName}". Files added to your account.`,
       filesCreated: createdFiles.length
     });
 
@@ -257,7 +278,6 @@ const rejectFolder = async (req, res ) => {
     return res.status(200).send({ msg: "Folder rejected successfully" });
 
   } catch (error) {
-    console.log(error);
     return res.status(500).send({ msg: "There is some error in the server" });
   }
 };
@@ -279,7 +299,6 @@ const rejectFile = async (req, res ) => {
     return res.status(200).send({ msg: "File rejected successfully" });
 
   } catch (error) {
-    console.log(error);
     return res.status(500).send({ msg: "There is some error in the server" });
   }
 };
@@ -350,7 +369,6 @@ const fetchHistory = async (req, res) => {
         sharedWith: folder.createdBy
       }))
     ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    console.log(allItems)
     res.status(200).send({ msg: allItems });
   } catch (error) {
     console.error("Error fetching history:", error);
@@ -444,10 +462,6 @@ const markSeen = async (req, res) => {
         return result;
       })
     );
-
-    console.log("File update results:", fileSeenResults);
-    console.log("Folder update results:", folderSeenResults);
-
     res.status(200).json({ msg: "Seen status updated successfully." });
   } catch (err) {
     console.error("Error updating seen status:", err);
@@ -459,8 +473,6 @@ const setShareFilePassword = async (req , res) => {
 
   const userId = req.user._id; 
   const {password, fileName , folderId} = req.body;
-  console.log(password , fileName, folderId)
-  console.log("reached")
 try{  
   if(folderId){
     const setPassword = await Folder.findByIdAndUpdate( folderId , {
@@ -479,7 +491,6 @@ try{
 
   return res.status(200).send({msg : setPassword}); 
 }catch(err){
-  console.log(err)
   err.status = 500; 
   next(err)
 }}
@@ -492,8 +503,11 @@ const verifyFilePassword = async (req, res, next) => {
     let isMatch = false;
 
     if (folder) {
-      resource = await Folder.findById(folder);
+      console.log(folder)
+      resource = await Folder.findOne({folderName : folder});
+      console.log(resource)
       isMatch = resource?.password === password;
+      console.log(isMatch)
     } else if (file) {
       resource = await Notes.findById(file);
       isMatch = resource?.password === password;
