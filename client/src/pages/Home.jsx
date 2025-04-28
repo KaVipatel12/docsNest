@@ -16,7 +16,7 @@ function Home() {
   const APP_URI = process.env.REACT_APP_URL;
   const token = localStorage.getItem("token");
   const [isAllEmpty, setIsAllEmpty] = useState(false);
-  const { userData, userLoading, isAuthenticated, userInfo} = useContext(Auth);
+  const { userData, userLoading, userInfo} = useContext(Auth);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -114,11 +114,6 @@ function Home() {
   }
   
   if (user && !userLoading) {
-    return <LoggedInErrorPage />;
-  }
-  
-  // With this
-  if (!isAuthenticated && !userLoading) {
     return <LoggedInErrorPage />;
   }
 
