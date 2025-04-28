@@ -20,7 +20,7 @@ function Nav({searchQuery}) {
   }, [userData])
   useEffect(() => {
     if(fileSharingNotification){
-        setPopNotify(fileSharingNotification || false);
+        setPopNotify(fileSharingNotification);
     }
   }, [fileSharingNotification])
   return (
