@@ -63,13 +63,21 @@ function FileMainPage() {
           },
         }
       );
-      setDescription(response.data.msg);
+  
+      // Log the entire response structure to debug
+      console.log("File content response:", response.data);
       
-      // If the response includes visibility information, update the state
-      if (response.data.access) {
-        setIsPublic(response.data.access === "public" ? true : false);
+      // Extract file content
+      const fileData = response.data.msg;
+      setDescription(fileData.content);
+      
+      // Check access from the correct place in the response
+      const accessType = response.data.access || fileData.access;
+      if (accessType) {
+        setIsPublic(accessType === "public");
       }
     } catch (error) {
+      console.error("Error fetching file:", error);
       toast.error("Something went wrong while fetching file content.");
     }
   }, [folder, fileName, token, APP_URI]);
