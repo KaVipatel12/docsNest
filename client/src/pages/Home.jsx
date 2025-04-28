@@ -113,7 +113,7 @@ function Home() {
     return <LoadingSpinner></LoadingSpinner>
   }
   
-  if (!userData && !userLoading) {
+  if (!user && !userLoading) {
     return <LoggedInErrorPage />;
   }
   
