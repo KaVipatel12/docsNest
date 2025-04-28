@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react"; 
 import "../RegisterPage.css"
 import axios from "axios"
-import {Link, useNavigate } from "react-router-dom";
+import {Link} from "react-router-dom";
 import { toast } from "react-toastify";
 import LoadingButton from "../components/LoadingButton";
 import { Auth } from "../context/Auth";
@@ -13,7 +13,6 @@ function Login(){
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const {userInfo} = useContext(Auth)
-    const navigate = useNavigate();
 
     useEffect(() => {
       document.title = `DocsNest : Login`;
@@ -28,7 +27,7 @@ function Login(){
         localStorage.setItem("token", response.data.token);
         toast.success(response.data.msg)
         await userInfo();
-        navigate("/"); 
+        window.location.href = "/" 
       } catch (error) {
         if (error.response) {
           console.error('Error:', error.response.data.msg);
