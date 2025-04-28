@@ -63,15 +63,10 @@ function FileMainPage() {
           },
         }
       );
-  
-      // Log the entire response structure to debug
-      console.log("File content response:", response.data);
-      
-      // Extract file content
+    
       const fileData = response.data.msg;
       setDescription(fileData.content);
       
-      // Check access from the correct place in the response
       const accessType = response.data.access || fileData.access;
       if (accessType) {
         setIsPublic(accessType === "public");

@@ -194,9 +194,9 @@ const fetchFileContent = async (req, res, next) => {
   try {
     const file = await Folders.findOne({ user: userId, folderName, fileName });
     if (!file) return res.status(404).send({ msg: "File not found" });
-
     return res.status(200).send({ msg: file, access: file.access });
   } catch (error) {
+    console.log(error)
     next(error);
   }
 };
