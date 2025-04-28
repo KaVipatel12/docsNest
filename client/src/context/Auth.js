@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useEffect, useState } from 'react';
 const Auth = createContext();
 
 function AuthProvider({ children }) {
-  const [userData, setUserData] = useState("");
+  const [userData, setUserData] = useState(null);
   const [userLoading, setUserLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [fileSharingNotification , setFileSharingNotification] = useState(false) 
@@ -43,10 +43,15 @@ function AuthProvider({ children }) {
       const hasUnseen = unseenFiles.length > 0 || unseenFolders.length > 0;
       setFileSharingNotification(hasUnseen);
       
-      // Set user data
-      setUserData(response.data.msg);
-      setIsAuthenticated(true);
+      if (response.data && response.data.msg) {
+        setUserData(response.data.msg);
+        setIsAuthenticated(true);
+      } else {
+        setUserData(null);
+        setIsAuthenticated(false);
+      }
     } catch (error) {
+      setUserData(null);
       setIsAuthenticated(false);
     } finally {
       setUserLoading(false);

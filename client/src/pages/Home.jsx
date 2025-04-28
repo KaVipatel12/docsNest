@@ -17,7 +17,7 @@ function Home() {
   const token = localStorage.getItem("token");
   const [isAllEmpty, setIsAllEmpty] = useState(false);
   const { userData, userLoading, isAuthenticated, userInfo} = useContext(Auth);
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (userData) {
@@ -113,7 +113,7 @@ function Home() {
     return <LoadingSpinner></LoadingSpinner>
   }
   
-  if (user.length === 0 && !userLoading) {
+  if (user && !userLoading) {
     return <LoggedInErrorPage />;
   }
   
