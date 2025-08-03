@@ -16,11 +16,18 @@ function SettingsModal({
   description,
   token,
   APP_URI,
-  userInfo
+  userInfo,
+  currentPassword
 }) {
   const [visibility, setVisibility] = useState(isPublic);
   const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState("");
+  const [submittingPassword, setSubmittingPassword] = useState(false);
   
+  useEffect(() => {
+    console.log("Here is the current" , currentPassword)
+    currentPassword ? setPassword(currentPassword) : setPassword("") 
+  }, [currentPassword])
   // Update local state when prop changes
   useEffect(() => {
     setVisibility(isPublic);
@@ -40,7 +47,6 @@ function SettingsModal({
     setLoading(true);
     
     try {
-      
       if (folder) {
         // For files within folders
        await axios.post(
@@ -84,6 +90,35 @@ function SettingsModal({
     }
   };
 
+  const handlePasswordSubmit = async () => {
+    setSubmittingPassword(true);
+    
+    try {
+      // Modify this to your actual API endpoint for setting a password
+      await axios.patch(
+        `${APP_URI}/filesharing/setsharefilepassword`,
+        {
+          fileName: noteId || fileName,
+          folderId: folder || null,
+          password: password
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      toast.success("Password set successfully");
+    } catch (error) {
+      console.log(error.response)
+      toast.error("Failed to set password. Please try again.");
+    } finally {
+      setSubmittingPassword(false);
+    }
+  };
+
   // Generate shareable link
   const getShareableLink = () => {
     const baseURL = window.location.origin;
@@ -108,6 +143,7 @@ function SettingsModal({
             ></button>
           </div>
           <div className="modal-body">
+            {/* Visibility Toggle Section */}
             <div className="form-check form-switch mb-3">
               <input 
                 className="form-check-input" 
@@ -128,6 +164,33 @@ function SettingsModal({
               </p>
             </div>
             
+            {/* Password Protection Section */}
+            <div className="mt-4 mb-3">
+              <label htmlFor="passwordInput" className="form-label">Password Protection</label>
+              <div className="input-group">
+                <input 
+                  type="password"
+                  className="form-control" 
+                  id="passwordInput"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={submittingPassword}
+                />
+                <button 
+                  className="btn btn-success" 
+                  onClick={handlePasswordSubmit}
+                  disabled={submittingPassword}
+                >
+                  {submittingPassword ? "Submitting..." : "Set Password"}
+                </button>
+              </div>
+              <p className="text-muted small mt-1">
+                You can share this password to collaborate with your team
+              </p>
+            </div>
+            
+            {/* Share Link Section */}
             {isUpdate && visibility && (
               <div className="mt-3 p-2 bg-light rounded">
                 <p className="mb-1 fw-bold">Share Link:</p>

@@ -20,7 +20,7 @@ body {
   width: 100%;
 }
 .welcome-title {
-  font-size: 2rem; /* bigger and clean */
+  font-size: 1rem; /* bigger and clean */
   font-weight: 700; /* bold and attractive */
   text-align: center; /* center it horizontally */
   margin-top: 20px;
